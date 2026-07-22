@@ -1,111 +1,104 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useRef, useState } from "react";
+import { gsap, useGSAP } from "@/lib/gsap";
+import Eyebrow from "./film/Eyebrow";
 
-const testimonials = [
-  {
-    id: 1,
-    name: "Ana Carolina Silva",
-    role: "Ensaio de Casal",
-    text: "As fotos ficaram incríveis. O ZP Studio tem um jeito único de capturar emoção — cada imagem parece um quadro. Já indiquei para todos os meus amigos.",
-  },
-  {
-    id: 2,
-    name: "Mariana Costa",
-    role: "Ensaio Gestante",
-    text: "Estava nervosa antes do ensaio, mas o fotógrafo me deixou completamente à vontade. O resultado foi além do que eu sonhei. Uma memória para a vida inteira.",
-  },
-  {
-    id: 3,
-    name: "Rafael & Júlia Santos",
-    role: "Fotografia de Casamento",
-    text: "O ZP Studio capturou nosso casamento de um jeito que nos fez chorar de emoção ao ver as fotos. Profissionalismo e sensibilidade que raramente se encontra.",
-  },
-  {
-    id: 4,
-    name: "Beatriz Mendonça",
-    role: "Retrato Profissional",
-    text: "Precisava de fotos para o LinkedIn e saí com muito mais: uma série de imagens que realmente me representa. Atenção aos detalhes impecável.",
-  },
+const criticas = [
+  { texto: "Não sabia posar e no fim nem percebi a câmera. As fotos são a gente de verdade — não uma versão ensaiada da gente.", nome: "Ana Carolina", papel: "Ensaio de casal" },
+  { texto: "Chorei quando abri a galeria. Cada foto tem a luz certa, o gesto certo. Parece que ele estava vendo o que a gente sentia.", nome: "Mariana Costa", papel: "Gestante" },
+  { texto: "O casamento inteiro está ali, sem clichê, sem foto de banco. Gente olhando e dizendo: isso sim é fotografia.", nome: "Rafael & Júlia", papel: "Casamento" },
+  { texto: "Precisava de um retrato pro trabalho e saí com uma série que finalmente parece comigo. Cuidado em cada detalhe.", nome: "Beatriz Mendonça", papel: "Retrato" },
 ];
 
 export default function Testimonials() {
-  const ref    = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const raiz = useRef<HTMLElement>(null);
+  const [i, setI] = useState(0);
+
+  // Troca com dissolve, sem depender de biblioteca de presença.
+  const ir = (destino: number) => {
+    const n = (destino + criticas.length) % criticas.length;
+    if (n === i) return;
+    const cartao = raiz.current?.querySelector<HTMLElement>("[data-cartao]");
+    if (!cartao) return setI(n);
+    gsap.to(cartao, {
+      autoAlpha: 0,
+      y: -12,
+      duration: 0.3,
+      ease: "shutter",
+      onComplete: () => {
+        setI(n);
+        gsap.fromTo(cartao, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "cut" });
+      },
+    });
+  };
+
+  useGSAP(
+    () => {
+      gsap.from("[data-reveal]", {
+        y: 26,
+        autoAlpha: 0,
+        duration: 0.9,
+        ease: "cut",
+        stagger: 0.1,
+        scrollTrigger: { trigger: raiz.current, start: "top 72%", once: true },
+      });
+    },
+    { scope: raiz },
+  );
+
+  const c = criticas[i];
 
   return (
     <section
       id="depoimentos"
-      ref={ref}
-      className="relative py-32 px-6"
-      style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
+      ref={raiz}
+      className="relative px-6 py-28 md:py-40 md:px-14"
+      style={{ borderTop: "1px solid var(--film-line)" }}
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto max-w-4xl">
+        <div data-reveal>
+          <Eyebrow cena="Cena 06">Crítica</Eyebrow>
+        </div>
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
-        >
-          <div>
-            <p className="font-body text-nebula-400 text-[0.62rem] tracking-[0.5em] uppercase font-medium mb-4">
-              Depoimentos
-            </p>
-            <h2
-              className="font-display font-bold text-white leading-[1.08]"
-              style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
-            >
-              O que dizem<br />
-              <span className="font-editorial italic font-normal text-silver/60" style={{ fontSize: "0.88em" }}>
-                nossos clientes.
-              </span>
-            </h2>
+        <div data-reveal data-cartao className="min-h-[16rem]">
+          <blockquote className="font-display text-3xl uppercase leading-[1.05] text-film-white sm:text-4xl lg:text-5xl">
+            “{c.texto}”
+          </blockquote>
+          <div className="mt-10 flex items-center gap-4">
+            <span className="h-px w-8 bg-film-white" aria-hidden />
+            <div>
+              <p className="font-body text-sm text-film-white">{c.nome}</p>
+              <p className="mt-0.5 font-hud text-[9px] uppercase tracking-hud text-film-grey">{c.papel}</p>
+            </div>
           </div>
-          <p className="font-body text-silver/40 text-sm max-w-xs leading-relaxed hidden md:block">
-            Histórias reais de quem confiou a nós os momentos mais importantes da vida.
-          </p>
-        </motion.div>
+        </div>
 
-        {/* Editorial 2×2 grid */}
+        {/* Controles */}
         <div
-          className="grid md:grid-cols-2"
-          style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
+          data-reveal
+          className="mt-12 flex items-center justify-between pt-6"
+          style={{ borderTop: "1px solid var(--film-line)" }}
         >
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={t.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.55, delay: i * 0.09, ease: [0.22, 1, 0.36, 1] }}
-              className="p-10 lg:p-12 flex flex-col justify-between gap-8 group hover:bg-nebula-500/[0.03] transition-colors duration-300"
-              style={{
-                borderBottom: "1px solid rgba(237,237,232,0.08)",
-                borderRight: i % 2 === 0 ? "1px solid rgba(237,237,232,0.08)" : undefined,
-              }}
+          <span className="font-hud text-[11px] tabular-nums tracking-hud text-film-grey">
+            {String(i + 1).padStart(2, "0")} / {String(criticas.length).padStart(2, "0")}
+          </span>
+          <div className="flex gap-3">
+            <button
+              onClick={() => ir(i - 1)}
+              className="flex h-10 w-10 items-center justify-center border border-film-white/25 font-hud text-film-white transition-colors duration-300 hover:bg-film-white hover:text-film-black"
+              aria-label="Anterior"
             >
-              {/* Quote text */}
-              <p
-                className="font-editorial italic text-white/75 leading-[1.7] group-hover:text-white/90 transition-colors duration-300"
-                style={{ fontSize: "clamp(1rem, 1.6vw, 1.2rem)" }}
-              >
-                &ldquo;{t.text}&rdquo;
-              </p>
-
-              {/* Author */}
-              <div className="flex items-center gap-4">
-                <div className="w-5 h-px bg-flash shrink-0" />
-                <div>
-                  <p className="font-display font-semibold text-white text-sm">{t.name}</p>
-                  <p className="font-body text-silver/40 text-[0.6rem] tracking-[0.35em] uppercase mt-0.5">
-                    {t.role}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+              ←
+            </button>
+            <button
+              onClick={() => ir(i + 1)}
+              className="flex h-10 w-10 items-center justify-center border border-film-white/25 font-hud text-film-white transition-colors duration-300 hover:bg-film-white hover:text-film-black"
+              aria-label="Próximo"
+            >
+              →
+            </button>
+          </div>
         </div>
       </div>
     </section>

@@ -1,131 +1,146 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
+import { useRef } from "react";
+import Image from "next/image";
+import { gsap, useGSAP, MQ_MOTION } from "@/lib/gsap";
+import { fotos } from "@/lib/photos";
+import Eyebrow from "./film/Eyebrow";
 
-function CountUp({ target, suffix = "", active }: { target: number; suffix?: string; active: boolean }) {
-  const [count, setCount] = useState(0);
+/** Uma retrato do acervo para ilustrar o estúdio. */
+const retrato = fotos.find((f) => f.categoria === "Retratos") ?? fotos[0];
 
-  useEffect(() => {
-    if (!active) return;
-    let frame = 0;
-    const total = 50;
-    const timer = setInterval(() => {
-      frame++;
-      const progress = frame / total;
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(target * eased));
-      if (frame >= total) { setCount(target); clearInterval(timer); }
-    }, 20);
-    return () => clearInterval(timer);
-  }, [active, target]);
+const numeros = [
+  { valor: 128400, sufixo: "", label: "frames capturados" },
+  { valor: 500, sufixo: "+", label: "ensaios entregues" },
+  { valor: 9, sufixo: "", label: "anos de estrada" },
+];
 
-  return <>{count}{suffix}</>;
-}
+const fmt = (n: number) => n.toLocaleString("pt-BR");
 
 export default function About() {
-  const ref    = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const raiz = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      const el = raiz.current;
+      if (!el) return;
+      const mm = gsap.matchMedia();
+
+      mm.add(MQ_MOTION, () => {
+        const tl = gsap.timeline({
+          scrollTrigger: { trigger: el, start: "top 75%", once: true },
+        });
+
+        // A foto entra por um corte que varre da esquerda — como uma
+        // tira sendo puxada sobre a mesa de luz.
+        tl.fromTo(
+          "[data-foto]",
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 1.1, ease: "shutter" },
+        )
+          .from("[data-linha]", { yPercent: 110, duration: 0.9, ease: "cut", stagger: 0.12 }, 0.2)
+          .from("[data-para]", { autoAlpha: 0, y: 20, duration: 0.8, stagger: 0.12 }, 0.5);
+
+        // Contadores: sobem de 0 ao valor, arredondando a cada quadro.
+        const counters = gsap.utils.toArray<HTMLElement>("[data-num]", el);
+        counters.forEach((node) => {
+          const alvo = Number(node.dataset.num);
+          const sufixo = node.dataset.suf ?? "";
+          const obj = { v: 0 };
+          tl.to(
+            obj,
+            {
+              v: alvo,
+              duration: 1.6,
+              ease: "dolly",
+              onUpdate: () => {
+                node.textContent = fmt(Math.round(obj.v)) + sufixo;
+              },
+            },
+            0.6,
+          );
+        });
+
+        return () => tl.scrollTrigger?.kill();
+      });
+
+      return () => mm.revert();
+    },
+    { scope: raiz },
+  );
 
   return (
     <section
       id="sobre"
-      ref={ref}
-      className="relative py-32 px-6"
-      style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
+      ref={raiz}
+      className="relative px-6 py-28 md:py-40 md:px-14"
+      style={{ borderTop: "1px solid var(--film-line)" }}
     >
-      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 lg:gap-24 items-center">
-
-        {/* Image with clip-path reveal */}
+      <div className="mx-auto grid max-w-7xl items-center gap-14 md:grid-cols-2 lg:gap-24">
+        {/* Foto */}
         <div className="relative">
-          <motion.div
-            className="relative aspect-[4/5] overflow-hidden"
-            initial={{ clipPath: "inset(0 100% 0 0)" }}
-            animate={inView ? { clipPath: "inset(0 0% 0 0)" } : {}}
-            transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=90"
-              alt="Fotógrafo ZP Studio em sessão"
-              className="w-full h-full object-cover"
+          <div data-foto className="halation relative aspect-[4/5] overflow-hidden bg-film-900">
+            <Image
+              src={retrato.src}
+              alt={retrato.alt}
+              fill
+              quality={85}
+              sizes="(max-width: 768px) 100vw, 45vw"
+              className="object-cover"
             />
-            {/* Blue overlay — subtle galaxy tint */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{ background: "linear-gradient(180deg, rgba(237,237,232,0.08) 0%, transparent 50%, rgba(6,14,27,0.4) 100%)" }}
-            />
-          </motion.div>
-
-          {/* Corner accent — blue instead of flash */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ delay: 0.7, duration: 0.4 }}
-            className="absolute -bottom-3 -right-3 w-10 h-10"
-            style={{
-              borderRight: "2px solid rgba(237,237,232,0.5)",
-              borderBottom: "2px solid rgba(237,237,232,0.5)",
-            }}
-          />
+          </div>
+          <span className="absolute -bottom-3 -right-3 h-9 w-9 border-b border-r border-film-white/40" aria-hidden />
+          <span className="absolute right-4 top-4 font-hud text-[9px] uppercase tracking-hud text-film-white/70 mix-blend-difference">
+            Still 01
+          </span>
         </div>
 
-        {/* Text */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col gap-7"
-        >
-          <p className="font-body text-nebula-400 text-[0.62rem] tracking-[0.5em] uppercase font-medium">
-            Sobre o Estúdio
-          </p>
+        {/* Texto */}
+        <div>
+          <Eyebrow cena="Cena 02">Direção</Eyebrow>
 
-          <h2
-            className="font-display font-bold text-white leading-[1.08]"
-            style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)" }}
-          >
-            Arte com alma,<br />
-            <span className="font-editorial italic font-normal text-silver/70" style={{ fontSize: "0.88em" }}>
-              luz com intenção.
+          <h2 className="font-display text-4xl uppercase leading-[0.92] text-film-white sm:text-5xl lg:text-6xl">
+            <span className="mask-line">
+              <span data-linha className="block">O olhar</span>
+            </span>
+            <span className="mask-line">
+              <span data-linha className="block text-film-grey">é a técnica.</span>
             </span>
           </h2>
 
-          <p className="font-body text-silver/65 text-sm leading-[1.9]">
-            O ZP Studio nasceu da crença de que toda fotografia carrega um universo
-            dentro dela. Não apenas uma imagem — um sentimento congelado no tempo,
-            pronto para ser revisitado para sempre.
-          </p>
-          <p className="font-body text-silver/50 text-sm leading-[1.9]">
-            Com anos de experiência e um olhar treinado para capturar o extraordinário
-            no ordinário, cada sessão é conduzida com cuidado, direção artística e
-            uma conexão genuína com quem está na frente da câmera.
-          </p>
+          <div className="mt-8 max-w-md space-y-5">
+            <p data-para className="font-body text-sm leading-relaxed text-film-400">
+              Fotografar não é apertar o botão. É escolher a hora, ler a luz e
+              esperar o gesto que ninguém encena. O resto — câmera, lente, edição
+              — está a serviço disso.
+            </p>
+            <p data-para className="font-body text-sm leading-relaxed text-film-grey">
+              Cada ensaio é conduzido do briefing à entrega com a mesma
+              exigência: nenhuma foto sai do estúdio antes de merecer.
+            </p>
+          </div>
 
-          {/* Stats row */}
-          <div
-            className="pt-7 grid grid-cols-3 gap-6"
-            style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
+          {/* Contadores */}
+          <dl
+            className="mt-12 grid grid-cols-3 gap-6 pt-8"
+            style={{ borderTop: "1px solid var(--film-line)" }}
           >
-            {[
-              { target: 500, suffix: "+", label: "Ensaios" },
-              { target: 8,   suffix: "",  label: "Anos" },
-              { target: 100, suffix: "%", label: "Satisfação" },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <p
-                  className="font-display font-bold text-white mb-1"
-                  style={{ fontSize: "clamp(1.4rem, 2.8vw, 2rem)" }}
+            {numeros.map((n) => (
+              <div key={n.label} data-para>
+                <dd
+                  data-num
+                  data-suf={n.sufixo}
+                  className="font-hud text-2xl tabular-nums text-film-white lg:text-3xl"
                 >
-                  <CountUp target={stat.target} suffix={stat.suffix} active={inView} />
-                </p>
-                <p className="font-body text-nebula-400/50 text-[0.6rem] tracking-[0.4em] uppercase">
-                  {stat.label}
-                </p>
+                  0
+                </dd>
+                <dt className="mt-1.5 font-hud text-[9px] uppercase tracking-hud text-film-grey">
+                  {n.label}
+                </dt>
               </div>
             ))}
-          </div>
-        </motion.div>
+          </dl>
+        </div>
       </div>
     </section>
   );

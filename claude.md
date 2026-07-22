@@ -194,11 +194,14 @@ Plano completo: `cerebroZp\Reformulacao ZP Studio — Direcao CINEMA (GSAP).md`
 
 - [x] **F0** infra GSAP · `lib/gsap.ts` · `SmoothScroll` · `lib/photos.ts`
 - [x] **F1** design system · tokens · fontes · grão · letterbox · HUD · cursor
-- [ ] **F2** Leader + Hero
-- [ ] **F3** Film strip + Sobre + Serviços
-- [ ] **F4** Galeria WebGL
-- [ ] **F5** Processo + Depoimentos + CTA + Créditos
-- [ ] **F6** fotos reais · `next/image` · SEO · Lighthouse · remover framer-motion
+- [x] **F2** Leader + Hero + Navbar + Marquee · azul residual varrido das seções legadas
+- [x] **F3** Sobre (reveal linha a linha, contadores) + Serviços (lista gigante, foto no hover)
+- [x] **F4** Galeria WebGL repaginada · dynamic import · filtros com Flip
+- [x] **F5** Processo (scroll horizontal pin) + Depoimentos (dissolve) + CTA (inversão branca) + Créditos
+- [x] **F6** `next/image` nas seções · SEO/OG · framer-motion REMOVIDO · código morto apagado
+- [ ] **Pendente** fotos reais do Drive → `public/fotos/` + trocar `lib/photos.ts`
+
+Reformulação completa. Só falta o acervo real de fotos (Drive privado, ainda não entregue).
 
 ---
 

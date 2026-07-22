@@ -28,44 +28,34 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://zpstudio.com.br"),
-  title: "ZP Studio | Fotografia Profissional em São Paulo",
+  title: "ZP Studio | Fotografia em São Paulo",
   description:
-    "ZP Studio — fotografia de retratos, casais, gestante e eventos em São Paulo. Cada ensaio, uma constelação de memórias eternas.",
+    "Estúdio de fotografia em São Paulo. Retratos, casais, gestante e eventos — com a luz que cada momento pede. Desde 2016.",
   keywords: [
-    "fotografia profissional",
+    "fotografia São Paulo",
     "estúdio de fotografia",
     "ensaio fotográfico",
-    "São Paulo",
-    "fotógrafo",
+    "fotógrafo de casamento",
+    "ensaio gestante",
+    "retrato profissional",
   ],
   authors: [{ name: "ZP Studio" }],
   openGraph: {
     type: "website",
     locale: "pt_BR",
-    title: "ZP Studio | Fotografia Profissional em São Paulo",
+    title: "ZP Studio | Fotografia em São Paulo",
     description:
-      "Cada ensaio, uma constelação de memórias eternas. Fotografia profissional com alma e técnica.",
+      "Retratos, casais, gestante e eventos — com a luz que cada momento pede.",
     siteName: "ZP Studio",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "ZP Studio — Fotografia Profissional",
-      },
-    ],
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "ZP Studio — Fotografia em São Paulo" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ZP Studio | Fotografia Profissional em São Paulo",
-    description:
-      "Cada ensaio, uma constelação de memórias eternas. Fotografia profissional com alma e técnica.",
+    title: "ZP Studio | Fotografia em São Paulo",
+    description: "Retratos, casais, gestante e eventos — com a luz que cada momento pede.",
     images: ["/og-image.jpg"],
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({

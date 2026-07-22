@@ -406,16 +406,16 @@ function FallbackGallery({ images }: { images: ImageItem[] }) {
   );
 
   return (
-    <div className="flex flex-col items-center justify-center h-full bg-galaxy-950 p-4">
-      <p className="text-silver mb-4">Galeria de fotos</p>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+    <div className="h-full overflow-y-auto bg-film-black p-6">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
         {normalizedImages.map((img, i) => (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             key={i}
             src={img.src}
             alt={img.alt}
-            className="w-full h-32 object-cover rounded-lg"
+            loading="lazy"
+            className="h-40 w-full object-cover"
           />
         ))}
       </div>

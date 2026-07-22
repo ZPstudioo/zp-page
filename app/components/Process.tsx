@@ -1,94 +1,140 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { gsap, useGSAP, ScrollTrigger, MQ_DESKTOP } from "@/lib/gsap";
+import Eyebrow from "./film/Eyebrow";
 
-const steps = [
-  {
-    title: "Briefing",
-    description:
-      "Conversamos sobre você, seus desejos e o clima do ensaio. Cada detalhe pensado antes do dia.",
-  },
-  {
-    title: "Ensaio",
-    description:
-      "Um dia de imersão criativa. Direção de poses, luz e emoção — você relaxa, a magia acontece.",
-  },
-  {
-    title: "Edição",
-    description:
-      "Cada foto tratada individualmente com cor, contraste e retoques que preservam a essência natural.",
-  },
-  {
-    title: "Entrega",
-    description:
-      "Galeria online privada com todas as imagens em alta resolução, prontas para guardar para sempre.",
-  },
+const etapas = [
+  { n: "01", titulo: "Briefing", desc: "Conversa antes da câmera. Referência, clima, o que não pode faltar. O ensaio começa aqui." },
+  { n: "02", titulo: "Ensaio", desc: "Direção de luz e de gesto. Você relaxa; o resto é comigo. Nada de pose congelada." },
+  { n: "03", titulo: "Seleção", desc: "Do bruto ao corte final. Só passa o frame que merece — o descarte é parte do trabalho." },
+  { n: "04", titulo: "Tratamento", desc: "Cor, contraste e pele, quadro a quadro. Sem filtro de prateleira, sem plástico." },
+  { n: "05", titulo: "Entrega", desc: "Galeria privada em alta resolução, pronta para guardar a vida inteira." },
 ];
 
 export default function Process() {
-  const ref    = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const raiz = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      const el = raiz.current;
+      if (!el) return;
+      const mm = gsap.matchMedia();
+
+      // Desktop: a seção prende e as etapas passam na horizontal, como
+      // rodar o filme quadro a quadro na mesa de edição.
+      mm.add(MQ_DESKTOP, () => {
+        const trilho = el.querySelector<HTMLElement>("[data-trilho]");
+        if (!trilho) return;
+
+        const distancia = trilho.scrollWidth - window.innerWidth;
+
+        const tween = gsap.to(trilho, {
+          x: -distancia,
+          ease: "none",
+          scrollTrigger: {
+            trigger: el,
+            start: "top top",
+            end: () => `+=${distancia}`,
+            pin: true,
+            scrub: 0.8,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        // A barra de progresso acompanha o avanço do rolo.
+        const barra = el.querySelector<HTMLElement>("[data-barra]");
+        const prog = barra
+          ? gsap.to(barra, {
+              scaleX: 1,
+              ease: "none",
+              scrollTrigger: { trigger: el, start: "top top", end: () => `+=${distancia}`, scrub: 0.8 },
+            })
+          : null;
+
+        return () => {
+          tween.scrollTrigger?.kill();
+          tween.kill();
+          prog?.scrollTrigger?.kill();
+          prog?.kill();
+        };
+      });
+
+      // Mobile: reveal simples, empilhado (a rota nativa vertical é melhor).
+      mm.add("(max-width: 767px)", () => {
+        const cards = gsap.utils.toArray<HTMLElement>("[data-etapa]", el);
+        const t = gsap.from(cards, {
+          y: 30,
+          autoAlpha: 0,
+          duration: 0.8,
+          ease: "cut",
+          stagger: 0.1,
+          scrollTrigger: { trigger: el, start: "top 70%", once: true },
+        });
+        return () => {
+          t.scrollTrigger?.kill();
+          t.kill();
+        };
+      });
+
+      return () => {
+        mm.revert();
+        ScrollTrigger.refresh();
+      };
+    },
+    { scope: raiz },
+  );
 
   return (
     <section
       id="processo"
-      ref={ref}
-      className="relative py-32 px-6"
-      style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
+      ref={raiz}
+      className="relative overflow-hidden md:h-screen"
+      style={{ borderTop: "1px solid var(--film-line)" }}
     >
-      <div className="max-w-7xl mx-auto">
+      {/* Cabeçalho fixo dentro do pin */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 px-6 pt-24 md:px-14 md:pt-28">
+        <Eyebrow cena="Cena 05">Processo</Eyebrow>
+        <h2 className="font-display text-4xl uppercase leading-[0.9] text-film-white sm:text-5xl">
+          Do bruto ao corte
+        </h2>
+      </div>
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="mb-20 max-w-lg"
-        >
-          <p className="font-body text-nebula-400 text-[0.62rem] tracking-[0.5em] uppercase font-medium mb-4">
-            Como funciona
-          </p>
-          <h2
-            className="font-display font-bold text-white leading-[1.08]"
-            style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
+      {/* Trilho horizontal (desktop) / coluna (mobile) */}
+      <div
+        data-trilho
+        className="flex flex-col gap-6 px-6 py-28 md:h-full md:flex-row md:items-center md:gap-0 md:px-0 md:py-0"
+        style={{ width: "max-content" }}
+      >
+        {/* Espaçador para o primeiro card não colar no cabeçalho (desktop) */}
+        <div className="hidden md:block md:w-[42vw] md:shrink-0" aria-hidden />
+
+        {etapas.map((e) => (
+          <article
+            data-etapa
+            key={e.n}
+            className="shrink-0 md:flex md:h-full md:w-[38vw] md:flex-col md:justify-center md:px-14"
+            style={{ borderLeft: "1px solid var(--film-line)" }}
           >
-            Do primeiro contato<br />
-            <span className="font-editorial italic font-normal text-silver/60" style={{ fontSize: "0.88em" }}>
-              às memórias eternas.
-            </span>
-          </h2>
-        </motion.div>
-
-        {/* Steps */}
-        <div
-          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-0"
-          style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
-        >
-          {steps.map((step, i) => (
-            <motion.div
-              key={step.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="group p-8 transition-colors duration-200 hover:bg-nebula-500/[0.04]"
-              style={{
-                borderRight: i < steps.length - 1 ? "1px solid rgba(237,237,232,0.08)" : undefined,
-              }}
-            >
-              {/* Number */}
-              <p className="font-display text-[0.6rem] tracking-[0.4em] text-nebula-400/70 mb-6">
-                0{i + 1}
-              </p>
-
-              <h3 className="font-display font-semibold text-white text-base mb-3 group-hover:text-nebula-400 transition-colors duration-200">
-                {step.title}
+            <div className="pl-6 md:pl-0">
+              <span className="font-hud text-[11px] tracking-hud text-film-grey">{e.n} / 05</span>
+              <h3 className="mt-4 font-display text-5xl uppercase leading-none text-film-white md:text-7xl">
+                {e.titulo}
               </h3>
-              <p className="font-body text-silver/45 text-sm leading-[1.75]">
-                {step.description}
+              <p className="mt-6 max-w-sm font-body text-sm leading-relaxed text-film-grey">
+                {e.desc}
               </p>
-            </motion.div>
-          ))}
+            </div>
+          </article>
+        ))}
+
+        <div className="hidden md:block md:w-[20vw] md:shrink-0" aria-hidden />
+      </div>
+
+      {/* Barra de progresso (desktop) */}
+      <div className="absolute inset-x-0 bottom-10 z-10 mx-14 hidden md:block" aria-hidden>
+        <div className="h-px w-full bg-film-line">
+          <div data-barra className="h-px w-full origin-left scale-x-0 bg-film-white" />
         </div>
       </div>
     </section>
