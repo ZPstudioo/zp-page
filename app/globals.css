@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════
+   ZP STUDIO — "35mm"
+   Sem gradiente. Sem glow. Sem vidro. Sem cor.
+   A única cor da página sai das fotografias.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --font-anton:      "Anton", Impact, sans-serif;
+  --font-archivo:    "Archivo", system-ui, sans-serif;
+  --font-plex-mono:  "IBM Plex Mono", ui-monospace, monospace;
+
+  --film-black: #050505;
+  --film-white: #EDEDE8;
+  --film-grey:  #6B6B6B;
+  --film-line:  rgba(237, 237, 232, 0.12);
+  --rec:        #FF3D00;
+
+  /* tokens shadcn — usados apenas na rota /mundo */
+  --background:         0 0% 2%;
+  --foreground:         50 8% 92%;
+  --muted:              0 0% 7%;
+  --muted-foreground:   0 0% 42%;
+  --card:               0 0% 4%;
+  --card-foreground:    50 8% 92%;
+  --border:             0 0% 11%;
+  --primary:            50 8% 92%;
+  --primary-foreground: 0 0% 2%;
+  --accent:             0 0% 9%;
+  --accent-foreground:  50 8% 92%;
+}
+
+/* ── Base ───────────────────────────────────────────────────── */
+/* Sem scroll-behavior: smooth — o ScrollSmoother cuida disso e os
+   dois juntos brigam pelo controle do scroll.                    */
+html {
+  background-color: var(--film-black);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--film-black);
+  color: var(--film-white);
+  font-family: var(--font-archivo);
+  overflow-x: hidden;
+}
+
+/* O ScrollSmoother precisa que o wrapper não crie scroll próprio. */
+#smooth-wrapper { overflow: visible; }
+
+/* Display condensado: a fonte já é estreita, o aperto é de tracking. */
+.font-display { letter-spacing: -0.045em; line-height: 0.86; }
+
+/* ── Cursor ─────────────────────────────────────────────────── */
+@media (hover: hover) and (pointer: fine) {
+  body,
+  a,
+  button,
+  [role="button"] { cursor: none; }
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 2px; }
+::-webkit-scrollbar-track  { background: var(--film-black); }
+::-webkit-scrollbar-thumb  { background: #2A2A2A; }
+::-webkit-scrollbar-thumb:hover { background: var(--film-grey); }
+
+/* ── Seleção: negativo de filme ─────────────────────────────── */
+::selection {
+  background: var(--film-white);
+  color: var(--film-black);
+}
+
+/* ── Foco: a única cor funcional do site ────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--rec);
+  outline-offset: 3px;
+}
+
+/* ── Hairline ───────────────────────────────────────────────── */
+.rule { border-top: 1px solid var(--film-line); }
+
+/* ── Halation ────────────────────────────────────────────────
+   O brilho quente que a luz forte cria ao atravessar o filme.
+   Substitui o antigo "light leak" azul.                        */
+.halation { position: relative; overflow: hidden; }
+.halation::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 35%,
+    rgba(255, 170, 120, 0.16) 0%,
+    transparent 62%
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+.halation:hover::after { opacity: 1; }
+
+/* ── Máscara de reveal ──────────────────────────────────────
+   Usada com SplitText: cada linha vive dentro de um recorte e a
+   linha entra por baixo. É o reveal que não parece template.    */
+.mask-line { overflow: hidden; display: block; }
+
+/* ── Perfuração de filme ────────────────────────────────────
+   Os furos laterais de um negativo 35mm, em CSS puro.          */
+.sprockets {
+  background-image: radial-gradient(
+    circle at center,
+    var(--film-black) 0 42%,
+    transparent 43%
+  );
+  background-size: 22px 22px;
+  background-repeat: repeat-x;
+}
+
+/* ── Clip reveal ────────────────────────────────────────────── */
+.clip-hidden  { clip-path: inset(0 100% 0 0); }
+.clip-visible { clip-path: inset(0 0% 0 0); }
+
+/* ── Menos movimento ────────────────────────────────────────
+   Não é enfeite: o grão e o scrub saem inteiros.               */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
