@@ -1,255 +1,251 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { useRef } from "react";
+import Image from "next/image";
+import { gsap, useGSAP, SplitText, ScrollTrigger, MQ_FINE, MQ_MOTION } from "@/lib/gsap";
+import { heroFoto } from "@/lib/photos";
+import { aoLiberarPalco } from "./film/leader-bus";
 
-const words = ["Fotografia", "que", "respira."];
+/**
+ * Hero — o primeiro frame.
+ *
+ * Uma foto sangrada, cortada pelo letterbox, e três palavras que entram
+ * por baixo de uma máscara. Nada de card, nada de gradiente colorido.
+ *
+ * Três camadas empilhadas, cada uma com um dono do `transform`:
+ *   [data-speed]  → ScrollSmoother (parallax de scroll)
+ *   [data-mouse]  → mouse (deriva suave)
+ *   [data-zoom]   → ScrollTrigger (o zoom out)
+ * Misturar dois donos no mesmo elemento é como um deles perde a briga.
+ */
 
-const reveal = {
-  hidden: { opacity: 0, y: 56, skewY: 4 },
-  show:   (i: number) => ({
-    opacity: 1,
-    y: 0,
-    skewY: 0,
-    transition: {
-      delay: 0.3 + i * 0.14,
-      duration: 0.7,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  }),
-};
+const TITULO = ["Fotografia", "que", "respira."];
 
 export default function Hero() {
+  const raiz = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      const secao = raiz.current;
+      if (!secao) return;
+
+      const mm = gsap.matchMedia();
+      let cancelado = false;
+      let split: SplitText | null = null;
+      let entrada: gsap.core.Timeline | null = null;
+
+      const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      // Esconde os elementos animados de imediato, ainda no callback síncrono —
+      // assim não há um quadro com o título exposto antes de `fonts.ready`. Quem
+      // pediu menos movimento nunca esconde nada: vê tudo, sem animação.
+      const aEsconder = gsap.utils.toArray<HTMLElement>(
+        "[data-titulo], [data-sobe], [data-risco]",
+        secao,
+      );
+      if (!semMovimento) gsap.set(aEsconder, { autoAlpha: 0 });
+
+      /* ── Entrada: só depois que o leader sai ──────────────────── */
+      const abrirCena = () => {
+        // Reduced motion: nada foi escondido, então não há o que revelar.
+        if (semMovimento) return;
+
+        // O SplitText precisa da fonte já carregada, senão ele quebra as
+        // linhas com a métrica da fonte de fallback e o reveal sai torto.
+        document.fonts.ready.then(() => {
+          if (cancelado) return;
+
+          const h1 = secao.querySelector<HTMLElement>("[data-titulo]");
+          if (!h1) return;
+
+          // Fora do callback síncrono do useGSAP o escopo não vale mais:
+          // seletor em texto resolveria no documento inteiro. Elementos na mão.
+          const sobem = gsap.utils.toArray<HTMLElement>("[data-sobe]", secao);
+          const risco = secao.querySelector<HTMLElement>("[data-risco]");
+
+          split = SplitText.create(h1, { type: "lines", mask: "lines" });
+
+          // Tudo entra com `fromTo`: o estado inicial já está no CSS
+          // (`opacity-0`), então não existe um quadro com o texto exposto
+          // antes da animação assumir.
+          entrada = gsap.timeline();
+          entrada
+            .set(h1, { autoAlpha: 1 })
+            .fromTo(
+              split.lines,
+              { yPercent: 115 },
+              { yPercent: 0, duration: 1.05, ease: "cut", stagger: 0.075 },
+              0,
+            )
+            .fromTo(
+              sobem,
+              { y: 18, autoAlpha: 0 },
+              { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.08 },
+              0.4,
+            )
+            .fromTo(
+              risco,
+              { scaleX: 0, autoAlpha: 1 },
+              { scaleX: 1, duration: 0.5, ease: "dolly" },
+              0.55,
+            );
+        });
+      };
+
+      const desinscrever = aoLiberarPalco(abrirCena);
+
+      /* ── Scroll: a câmera recua e o texto sobe ────────────────── */
+      mm.add(MQ_MOTION, () => {
+        const gatilho = {
+          trigger: secao,
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.8,
+        } as const;
+
+        const zoom = gsap.to("[data-zoom]", {
+          scale: 1.14,
+          ease: "none",
+          scrollTrigger: gatilho,
+        });
+
+        const texto = gsap.to("[data-conteudo]", {
+          yPercent: -22,
+          autoAlpha: 0,
+          ease: "none",
+          scrollTrigger: { ...gatilho, end: "70% top" },
+        });
+
+        return () => {
+          zoom.scrollTrigger?.kill();
+          texto.scrollTrigger?.kill();
+          zoom.kill();
+          texto.kill();
+        };
+      });
+
+      /* ── Mouse: deriva de câmera na mão ───────────────────────── */
+      mm.add(MQ_FINE, () => {
+        const camada = secao.querySelector<HTMLElement>("[data-mouse]");
+        if (!camada) return;
+
+        const x = gsap.quickTo(camada, "x", { duration: 1.2, ease: "power3" });
+        const y = gsap.quickTo(camada, "y", { duration: 1.2, ease: "power3" });
+
+        const mover = (e: MouseEvent) => {
+          // ±14px. Passou disso, vira enjoo.
+          x((e.clientX / window.innerWidth - 0.5) * -28);
+          y((e.clientY / window.innerHeight - 0.5) * -28);
+        };
+
+        window.addEventListener("mousemove", mover);
+        return () => window.removeEventListener("mousemove", mover);
+      });
+
+      return () => {
+        cancelado = true;
+        desinscrever();
+        entrada?.kill();
+        split?.revert();
+        mm.revert();
+        ScrollTrigger.refresh();
+      };
+    },
+    { scope: raiz },
+  );
+
   return (
     <section
+      ref={raiz}
       id="hero"
-      className="relative min-h-screen overflow-hidden flex flex-col"
-      style={{ background: "linear-gradient(160deg, #060E1B 0%, #08111F 40%, #0A1428 70%, #060F1C 100%)" }}
-      aria-label="Seção inicial"
+      aria-label="Início"
+      className="relative h-[100svh] overflow-hidden bg-black"
     >
-      {/* ═══════════════════════════════════════════════════
-          AURORA LAYERS — GPU only (transform + opacity)
-          Radial gradients: painted once, composited always
-      ═══════════════════════════════════════════════════ */}
-
-      {/* Aurora 1 — deep blue, top-right dominant */}
-      <div
-        className="absolute pointer-events-none select-none"
-        aria-hidden
-        style={{
-          inset: 0,
-          background: "radial-gradient(ellipse 70% 65% at 78% 20%, rgba(29,78,216,0.28) 0%, rgba(37,99,235,0.06) 55%, transparent 75%)",
-          willChange: "transform, opacity",
-          animation: "aurora-pulse 14s ease-in-out infinite",
-        }}
-      />
-
-      {/* Aurora 2 — cyan accent, mid-right */}
-      <div
-        className="absolute pointer-events-none select-none"
-        aria-hidden
-        style={{
-          inset: 0,
-          background: "radial-gradient(ellipse 45% 50% at 85% 55%, rgba(34,211,238,0.1) 0%, rgba(6,182,212,0.02) 50%, transparent 70%)",
-          willChange: "transform, opacity",
-          animation: "aurora-drift 20s ease-in-out infinite",
-        }}
-      />
-
-      {/* Aurora 3 — indigo, bottom-left */}
-      <div
-        className="absolute pointer-events-none select-none"
-        aria-hidden
-        style={{
-          inset: 0,
-          background: "radial-gradient(ellipse 50% 55% at 12% 80%, rgba(79,70,229,0.12) 0%, transparent 65%)",
-          willChange: "transform, opacity",
-          animation: "aurora-slow 18s ease-in-out infinite 5s",
-        }}
-      />
-
-      {/* Aurora 4 — very subtle blue center pulse */}
-      <div
-        className="absolute pointer-events-none select-none"
-        aria-hidden
-        style={{
-          inset: 0,
-          background: "radial-gradient(ellipse 55% 40% at 48% 45%, rgba(37,99,235,0.07) 0%, transparent 65%)",
-          willChange: "transform, opacity",
-          animation: "aurora-slow 22s ease-in-out infinite 2s reverse",
-        }}
-      />
-
-      {/* Dot grid — blue-tinted, fades at edges */}
-      <div
-        className="absolute inset-0 pointer-events-none select-none"
-        aria-hidden
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(96,165,250,0.07) 1px, transparent 1px)",
-          backgroundSize: "44px 44px",
-          maskImage:
-            "linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)," +
-            "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
-          maskComposite: "intersect",
-          WebkitMaskImage:
-            "linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)," +
-            "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
-          WebkitMaskComposite: "source-in",
-        }}
-      />
-
-      {/* Vignette — darkens corners */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        aria-hidden
-        style={{
-          background: "radial-gradient(ellipse 90% 90% at 50% 50%, transparent 55%, rgba(4,8,16,0.75) 100%)",
-        }}
-      />
-
-      {/* ═══════════════════════════════════════════════════
-          CONTENT
-      ═══════════════════════════════════════════════════ */}
-      <div className="flex-1 grid md:grid-cols-[1fr_340px] lg:grid-cols-[1fr_420px]">
-
-        {/* LEFT — text */}
-        <div className="relative flex flex-col justify-center px-8 sm:px-12 md:px-16 lg:px-24 pt-28 pb-20 md:pb-32">
-
-          {/* Eyebrow */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1, duration: 0.6 }}
-            className="font-body text-nebula-400/60 text-[0.6rem] tracking-[0.5em] uppercase mb-10"
-          >
-            São Paulo · Studio Fotográfico · Est. 2016
-          </motion.p>
-
-          {/* Headline */}
-          <h1
-            className="font-display font-bold text-white leading-[1.02] tracking-tight mb-8"
-            style={{ fontSize: "clamp(4rem, 11vw, 10rem)" }}
-          >
-            {words.map((word, i) => (
-              <span key={word} className="block overflow-hidden" aria-label={word}>
-                <motion.span
-                  className="block"
-                  variants={reveal}
-                  initial="hidden"
-                  animate="show"
-                  custom={i}
-                >
-                  {word}
-                </motion.span>
-              </span>
-            ))}
-          </h1>
-
-          {/* Flash divider */}
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.85, duration: 0.45, ease: "easeOut" }}
-            className="origin-left h-px w-10 bg-flash mb-8"
-          />
-
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.95, duration: 0.6 }}
-            className="font-body text-silver text-sm sm:text-base leading-[1.8] max-w-sm mb-12"
-          >
-            Retratos, casais, gestante e eventos —<br />
-            com a luz que cada momento merece.
-          </motion.p>
-
-          {/* CTAs */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.1, duration: 0.5 }}
-            className="flex flex-wrap items-center gap-6"
-          >
-            <a
-              href="#contato"
-              className="inline-flex items-center gap-3 border border-white text-white text-[0.7rem] tracking-[0.25em] uppercase font-body font-semibold px-8 py-4 hover:bg-white hover:text-ink transition-all duration-200"
-            >
-              Agendar Ensaio <ArrowRight size={12} />
-            </a>
-            <a
-              href="#portfolio"
-              className="text-silver/70 hover:text-white text-[0.7rem] tracking-[0.25em] uppercase font-body font-medium transition-colors duration-200 group"
-            >
-              Ver Portfólio{" "}
-              <span className="group-hover:translate-x-1 inline-block transition-transform duration-200">→</span>
-            </a>
-          </motion.div>
-        </div>
-
-        {/* RIGHT — photo panel (desktop only) */}
-        <div className="hidden md:block relative overflow-hidden">
-          <motion.img
-            src="https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=700&q=85&fit=crop"
-            alt="Ensaio fotográfico ZP Studio"
-            className="absolute inset-0 w-full h-full object-cover"
-            initial={{ scale: 1.08, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.15, duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-          />
-          {/* Left fade into dark bg */}
-          <div
-            className="absolute inset-y-0 left-0 w-28 pointer-events-none"
-            style={{ background: "linear-gradient(to right, #08111F, transparent)" }}
-          />
-          {/* Bottom vignette */}
-          <div
-            className="absolute inset-x-0 bottom-0 h-48 pointer-events-none"
-            style={{ background: "linear-gradient(to top, rgba(6,14,27,0.85), transparent)" }}
-          />
-          {/* Top vignette */}
-          <div
-            className="absolute inset-x-0 top-0 h-24 pointer-events-none"
-            style={{ background: "linear-gradient(to bottom, rgba(6,14,27,0.6), transparent)" }}
-          />
-          {/* Subtle blue overlay */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: "radial-gradient(ellipse 80% 60% at 60% 30%, rgba(29,78,216,0.12) 0%, transparent 70%)" }}
-          />
+      {/* Foto sangrada. O container extrapola em 12% para o parallax ter
+          folga e nunca revelar borda vazia. */}
+      <div data-speed="0.88" className="absolute inset-x-0 -inset-y-[12%]">
+        <div data-mouse className="absolute inset-0">
+          <div data-zoom className="absolute inset-0">
+            <Image
+              src={heroFoto.src}
+              alt={heroFoto.alt}
+              fill
+              priority
+              quality={85}
+              sizes="100vw"
+              className="object-cover"
+            />
+          </div>
         </div>
       </div>
 
-      {/* ── Stats strip ────────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 0.6 }}
-        style={{ borderTop: "1px solid rgba(59,130,246,0.1)" }}
-      >
-        <div className="max-w-7xl mx-auto px-8 sm:px-12 md:px-16 lg:px-24 py-5 flex items-center gap-10 md:gap-16">
-          {[
-            { value: "500+",   label: "ensaios realizados" },
-            { value: "8 anos", label: "de experiência" },
-            { value: "100%",   label: "satisfação garantida" },
-          ].map((stat) => (
-            <div key={stat.label} className="flex items-baseline gap-2">
-              <span className="font-display font-bold text-white" style={{ fontSize: "clamp(1.1rem, 2vw, 1.5rem)" }}>
-                {stat.value}
-              </span>
-              <span className="font-body text-silver/35 text-[0.6rem] tracking-wider uppercase hidden sm:block">
-                {stat.label}
-              </span>
-            </div>
-          ))}
+      {/* Legibilidade. Preto sobre preto — não é cor, é exposição. */}
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(5,5,5,0.92) 0%, rgba(5,5,5,0.55) 38%, rgba(5,5,5,0.15) 70%, rgba(5,5,5,0.45) 100%)",
+        }}
+      />
 
-          <div className="ml-auto items-center gap-2 text-silver/20 hidden lg:flex">
-            <span className="font-body text-[0.55rem] tracking-[0.4em] uppercase">Scroll</span>
-            <div className="w-px h-3.5 bg-silver/15" />
-            <span className="text-[0.6rem]">↓</span>
+      {/* Conteúdo */}
+      <div
+        data-conteudo
+        className="absolute inset-0 flex flex-col justify-end px-6 sm:px-10 md:px-14"
+        style={{ paddingBottom: "calc(var(--letterbox-h, 24px) + 3.25rem)" }}
+      >
+        <p data-sobe className="mb-5 font-hud text-[10px] uppercase tracking-hud text-film-400">
+          São Paulo · Desde 2016
+        </p>
+
+        <h1
+          data-titulo
+          className="font-display uppercase text-film-white"
+          style={{ fontSize: "clamp(3.2rem, 13vw, 12rem)" }}
+        >
+          {TITULO.map((linha) => (
+            <span key={linha} className="block">
+              {linha}
+            </span>
+          ))}
+        </h1>
+
+        <div data-risco className="my-8 h-px w-16 origin-left bg-film-white/40" />
+
+        <div className="flex flex-col gap-7 md:flex-row md:items-end md:justify-between">
+          <p
+            data-sobe
+            className="max-w-sm font-body text-sm leading-relaxed text-film-400"
+          >
+            Retratos, casais, gestante e eventos — com a luz que cada momento pede.
+          </p>
+
+          <div data-sobe className="flex flex-wrap items-center gap-8">
+            <a
+              href="#contato"
+              className="border border-film-white px-8 py-4 font-body text-[10px] font-semibold uppercase tracking-label text-film-white transition-colors duration-300 hover:bg-film-white hover:text-film-black"
+            >
+              Agendar ensaio
+            </a>
+            <a
+              href="#portfolio"
+              className="font-hud text-[10px] uppercase tracking-hud text-film-400 transition-colors duration-300 hover:text-film-white"
+            >
+              Ver portfólio
+            </a>
           </div>
         </div>
-      </motion.div>
+      </div>
+
+      {/* Marcação de rolo, alinhada ao letterbox */}
+      <span
+        aria-hidden
+        className="absolute right-6 font-hud text-[9px] uppercase tracking-hud text-film-grey"
+        style={{ bottom: "calc(var(--letterbox-h, 24px) + 1.1rem)" }}
+      >
+        01 — Role
+      </span>
     </section>
   );
 }

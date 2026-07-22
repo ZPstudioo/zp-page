@@ -32,7 +32,7 @@ export default function About() {
       id="sobre"
       ref={ref}
       className="relative py-32 px-6"
-      style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}
+      style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
     >
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 lg:gap-24 items-center">
 
@@ -53,7 +53,7 @@ export default function About() {
             {/* Blue overlay — subtle galaxy tint */}
             <div
               className="absolute inset-0 pointer-events-none"
-              style={{ background: "linear-gradient(180deg, rgba(29,78,216,0.08) 0%, transparent 50%, rgba(6,14,27,0.4) 100%)" }}
+              style={{ background: "linear-gradient(180deg, rgba(237,237,232,0.08) 0%, transparent 50%, rgba(6,14,27,0.4) 100%)" }}
             />
           </motion.div>
 
@@ -64,8 +64,8 @@ export default function About() {
             transition={{ delay: 0.7, duration: 0.4 }}
             className="absolute -bottom-3 -right-3 w-10 h-10"
             style={{
-              borderRight: "2px solid rgba(96,165,250,0.5)",
-              borderBottom: "2px solid rgba(96,165,250,0.5)",
+              borderRight: "2px solid rgba(237,237,232,0.5)",
+              borderBottom: "2px solid rgba(237,237,232,0.5)",
             }}
           />
         </div>
@@ -105,7 +105,7 @@ export default function About() {
           {/* Stats row */}
           <div
             className="pt-7 grid grid-cols-3 gap-6"
-            style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}
+            style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
           >
             {[
               { target: 500, suffix: "+", label: "Ensaios" },

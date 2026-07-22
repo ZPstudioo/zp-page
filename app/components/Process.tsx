@@ -35,7 +35,7 @@ export default function Process() {
       id="processo"
       ref={ref}
       className="relative py-32 px-6"
-      style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}
+      style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
     >
       <div className="max-w-7xl mx-auto">
 
@@ -63,7 +63,7 @@ export default function Process() {
         {/* Steps */}
         <div
           className="grid sm:grid-cols-2 lg:grid-cols-4 gap-0"
-          style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}
+          style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
         >
           {steps.map((step, i) => (
             <motion.div
@@ -73,7 +73,7 @@ export default function Process() {
               transition={{ duration: 0.5, delay: i * 0.08 }}
               className="group p-8 transition-colors duration-200 hover:bg-nebula-500/[0.04]"
               style={{
-                borderRight: i < steps.length - 1 ? "1px solid rgba(59,130,246,0.08)" : undefined,
+                borderRight: i < steps.length - 1 ? "1px solid rgba(237,237,232,0.08)" : undefined,
               }}
             >
               {/* Number */}

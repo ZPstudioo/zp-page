@@ -1,154 +1,168 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
+import { aoLiberarPalco } from "./film/leader-bus";
+
+/**
+ * Navegação.
+ *
+ * Sem vidro fosco, sem blur, sem barra flutuante arredondada. Uma linha
+ * de créditos: nome à esquerda, seções em mono, e um traço que se desenha
+ * sob o link no hover — como quem risca uma decupagem.
+ *
+ * Encostada na barra do letterbox (`--letterbox-h`), acompanha a retração.
+ */
 
 const links = [
-  { label: "Sobre",       href: "#sobre" },
-  { label: "Serviços",    href: "#servicos" },
-  { label: "Portfólio",   href: "#portfolio" },
-  { label: "Processo",    href: "#processo" },
-  { label: "Depoimentos", href: "#depoimentos" },
-  { label: "Contato",     href: "#contato" },
+  { label: "Sobre", href: "#sobre" },
+  { label: "Serviços", href: "#servicos" },
+  { label: "Portfólio", href: "#portfolio" },
+  { label: "Processo", href: "#processo" },
+  { label: "Contato", href: "#contato" },
 ];
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const raiz = useRef<HTMLElement>(null);
+  const [aberto, setAberto] = useState(false);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  useGSAP(
+    () => {
+      const desinscrever = aoLiberarPalco(() => {
+        gsap.from(raiz.current, { yPercent: -120, autoAlpha: 0, duration: 0.8, ease: "cut" });
+      });
+
+      // Depois da primeira tela a barra ganha fundo sólido — sólido, não turvo.
+      const fundo = gsap.to("[data-fundo]", {
+        autoAlpha: 1,
+        duration: 0.3,
+        paused: true,
+      });
+
+      const st = ScrollTrigger.create({
+        start: "top -80",
+        onToggle: (self) => (self.isActive ? fundo.play() : fundo.reverse()),
+      });
+
+      return () => {
+        desinscrever();
+        st.kill();
+        fundo.kill();
+      };
+    },
+    { scope: raiz },
+  );
+
+  // O menu de celular anima na abertura; o `dependencies` refaz na troca.
+  useGSAP(
+    () => {
+      if (!aberto) return;
+      gsap.from("[data-menu-item]", {
+        yPercent: 110,
+        autoAlpha: 0,
+        duration: 0.55,
+        stagger: 0.06,
+        ease: "cut",
+      });
+    },
+    { scope: raiz, dependencies: [aberto] },
+  );
 
   return (
-    <motion.header
-      initial={{ y: -56, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-      style={{
-        background: scrolled
-          ? "rgba(6, 12, 22, 0.88)"
-          : "transparent",
-        backdropFilter: scrolled ? "blur(18px) saturate(1.4)" : "none",
-        WebkitBackdropFilter: scrolled ? "blur(18px) saturate(1.4)" : "none",
-        borderBottom: scrolled
-          ? "1px solid rgba(59,130,246,0.1)"
-          : "none",
-        paddingTop: scrolled ? "0.75rem" : "1.25rem",
-        paddingBottom: scrolled ? "0.75rem" : "1.25rem",
-      }}
+    <header
+      ref={raiz}
+      className="fixed inset-x-0 z-[55]"
+      style={{ top: "var(--letterbox-h, 24px)" }}
     >
-      {/* Subtle blue top glow when scrolled */}
-      {scrolled && (
+      <div
+        data-fundo
+        aria-hidden
+        className="absolute inset-0 bg-film-black opacity-0"
+        style={{ borderBottom: "1px solid var(--film-line)" }}
+      />
+
+      {/* Menu de celular — tela cheia, tipografia grande, como cartela de filme.
+          Vem antes do <nav> no DOM para que a barra continue por cima dele
+          sem depender de z-index negativo. */}
+      {aberto && (
         <div
-          className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-          style={{
-            background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.35) 50%, transparent 100%)",
-          }}
-        />
+          id="menu-mobile"
+          className="fixed inset-0 flex flex-col justify-center gap-1 bg-film-black px-6 md:hidden"
+        >
+          {links.map((link) => (
+            <span key={link.href} className="mask-line">
+              <a
+                data-menu-item
+                href={link.href}
+                onClick={() => setAberto(false)}
+                className="block py-1 font-display text-4xl uppercase text-film-white"
+              >
+                {link.label}
+              </a>
+            </span>
+          ))}
+          <span className="mask-line mt-8">
+            <a
+              data-menu-item
+              href="#contato"
+              onClick={() => setAberto(false)}
+              className="inline-block border border-film-white px-7 py-3.5 font-hud text-[10px] uppercase tracking-hud text-film-white"
+            >
+              Agendar ensaio
+            </a>
+          </span>
+        </div>
       )}
 
-      <nav className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-
-        {/* Logo */}
-        <a href="#" className="flex items-center gap-2 group">
-          <span className="font-display text-lg font-bold tracking-[0.2em] text-white">
-            ZP
+      <nav className="relative flex items-center justify-between px-6 py-4 md:px-14">
+        <a href="#hero" className="flex items-baseline gap-2.5" aria-label="ZP Studio, início">
+          <span className="font-display text-base uppercase tracking-[0.14em] text-film-white">
+            ZP Studio
           </span>
-          <span className="font-display text-lg font-bold text-flash">.</span>
-          <span className="font-body text-silver/60 text-[0.55rem] tracking-[0.45em] uppercase hidden sm:block mt-px">
-            Studio
+          <span className="hidden font-hud text-[9px] uppercase tracking-hud text-film-grey sm:block">
+            35mm
           </span>
         </a>
 
-        {/* Desktop links */}
-        <ul className="hidden md:flex items-center gap-8">
+        <ul className="hidden items-center gap-9 md:flex">
           {links.map((link) => (
             <li key={link.href}>
               <a
                 href={link.href}
-                className="relative text-silver/60 hover:text-white text-[0.65rem] tracking-[0.2em] uppercase font-body font-medium transition-colors duration-200 group"
+                className="group relative font-hud text-[10px] uppercase tracking-hud text-film-400 transition-colors duration-300 hover:text-film-white"
               >
                 {link.label}
-                <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-nebula-400 group-hover:w-full transition-all duration-300" />
+                <span className="absolute -bottom-1.5 left-0 h-px w-0 bg-film-white transition-all duration-300 group-hover:w-full" />
               </a>
             </li>
           ))}
         </ul>
 
-        {/* CTA */}
         <a
           href="#contato"
-          className="hidden md:inline-flex items-center px-6 py-2 border text-[0.65rem] font-body font-semibold tracking-[0.25em] uppercase text-white transition-all duration-200"
-          style={{
-            borderColor: "rgba(59,130,246,0.3)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = "rgba(96,165,250,0.8)";
-            e.currentTarget.style.color = "#60A5FA";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "rgba(59,130,246,0.3)";
-            e.currentTarget.style.color = "#FFFFFF";
-          }}
+          className="hidden border border-film-white/25 px-6 py-2.5 font-hud text-[10px] uppercase tracking-hud text-film-white transition-colors duration-300 hover:bg-film-white hover:text-film-black md:inline-flex"
         >
           Agendar
         </a>
 
-        {/* Mobile hamburger */}
         <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden text-white p-1.5"
-          aria-label="Abrir menu"
+          onClick={() => setAberto((v) => !v)}
+          className="flex h-8 w-8 flex-col items-end justify-center gap-1.5 md:hidden"
+          aria-expanded={aberto}
+          aria-controls="menu-mobile"
+          aria-label={aberto ? "Fechar menu" : "Abrir menu"}
         >
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          <span
+            className="h-px bg-film-white transition-all duration-300"
+            style={{ width: aberto ? 20 : 22, transform: aberto ? "translateY(3px) rotate(45deg)" : "none" }}
+          />
+          <span
+            className="h-px bg-film-white transition-all duration-300"
+            style={{ width: aberto ? 20 : 14, transform: aberto ? "translateY(-3px) rotate(-45deg)" : "none" }}
+          />
         </button>
       </nav>
 
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden"
-            style={{
-              background: "rgba(6,12,22,0.97)",
-              backdropFilter: "blur(20px)",
-              borderTop: "1px solid rgba(59,130,246,0.08)",
-            }}
-          >
-            <ul className="px-6 py-8 flex flex-col gap-6">
-              {links.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className="text-silver/70 hover:text-white text-sm font-body font-medium tracking-wide transition-colors duration-150"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-              <li className="pt-4" style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}>
-                <a
-                  href="#contato"
-                  onClick={() => setMenuOpen(false)}
-                  className="inline-flex items-center px-6 py-3 border text-nebula-400 text-[0.7rem] font-body font-semibold tracking-widest uppercase"
-                  style={{ borderColor: "rgba(59,130,246,0.35)" }}
-                >
-                  Agendar Ensaio
-                </a>
-              </li>
-            </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
+    </header>
   );
 }

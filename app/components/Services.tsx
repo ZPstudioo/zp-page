@@ -66,7 +66,7 @@ export default function Services() {
       id="servicos"
       ref={ref}
       className="relative py-32 px-6"
-      style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}
+      style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
     >
       <div className="max-w-7xl mx-auto">
 
@@ -98,7 +98,7 @@ export default function Services() {
           ref={sectionRef}
           onMouseMove={handleMouseMove}
           className="relative"
-          style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}
+          style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
         >
           {services.map((service, i) => (
             <motion.div
@@ -109,7 +109,7 @@ export default function Services() {
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
               className="group flex items-center gap-6 py-6 md:py-7 transition-colors duration-150 cursor-default"
-              style={{ borderBottom: "1px solid rgba(59,130,246,0.07)" }}
+              style={{ borderBottom: "1px solid rgba(237,237,232,0.07)" }}
             >
               <span
                 className="font-display text-[0.6rem] tracking-[0.3em] shrink-0 transition-colors duration-200 w-8"

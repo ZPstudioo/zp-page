@@ -15,8 +15,8 @@ export default function CTAFinal() {
       ref={ref}
       className="relative overflow-hidden py-32 sm:py-44 px-6"
       style={{
-        background: "linear-gradient(160deg, #050D18 0%, #070F1C 35%, #08111F 60%, #050C18 100%)",
-        borderTop: "1px solid rgba(59,130,246,0.1)",
+        background: "linear-gradient(160deg, #0A0A0A 0%, #050505 35%, #050505 60%, #050505 100%)",
+        borderTop: "1px solid rgba(237,237,232,0.1)",
       }}
     >
       {/* Aurora — large blue bloom, center */}
@@ -24,7 +24,7 @@ export default function CTAFinal() {
         className="absolute inset-0 pointer-events-none"
         aria-hidden
         style={{
-          background: "radial-gradient(ellipse 70% 65% at 50% 35%, rgba(29,78,216,0.22) 0%, rgba(37,99,235,0.04) 55%, transparent 75%)",
+          background: "radial-gradient(ellipse 70% 65% at 50% 35%, rgba(237,237,232,0.22) 0%, rgba(237,237,232,0.04) 55%, transparent 75%)",
           willChange: "transform, opacity",
           animation: "aurora-pulse 16s ease-in-out infinite",
         }}
@@ -35,7 +35,7 @@ export default function CTAFinal() {
         className="absolute inset-0 pointer-events-none"
         aria-hidden
         style={{
-          background: "radial-gradient(ellipse 45% 50% at 85% 60%, rgba(34,211,238,0.09) 0%, transparent 65%)",
+          background: "radial-gradient(ellipse 45% 50% at 85% 60%, rgba(237,237,232,0.09) 0%, transparent 65%)",
           willChange: "transform, opacity",
           animation: "aurora-drift 22s ease-in-out infinite 3s",
         }}
@@ -46,7 +46,7 @@ export default function CTAFinal() {
         className="absolute inset-0 pointer-events-none"
         aria-hidden
         style={{
-          background: "radial-gradient(ellipse 40% 45% at 10% 85%, rgba(79,70,229,0.1) 0%, transparent 65%)",
+          background: "radial-gradient(ellipse 40% 45% at 10% 85%, rgba(237,237,232,0.1) 0%, transparent 65%)",
           willChange: "transform, opacity",
           animation: "aurora-slow 19s ease-in-out infinite 6s",
         }}
@@ -57,7 +57,7 @@ export default function CTAFinal() {
         className="absolute inset-0 pointer-events-none"
         aria-hidden
         style={{
-          backgroundImage: "radial-gradient(circle, rgba(96,165,250,0.055) 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(circle, rgba(237,237,232,0.055) 1px, transparent 1px)",
           backgroundSize: "44px 44px",
           maskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%)",
           WebkitMaskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%)",
@@ -69,7 +69,7 @@ export default function CTAFinal() {
         className="absolute top-0 left-0 right-0 h-px pointer-events-none"
         aria-hidden
         style={{
-          background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 50%, transparent 100%)",
+          background: "linear-gradient(90deg, transparent 0%, rgba(237,237,232,0.5) 50%, transparent 100%)",
         }}
       />
 
@@ -140,13 +140,13 @@ export default function CTAFinal() {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 border text-silver text-[0.7rem] tracking-[0.25em] uppercase font-body font-semibold px-10 py-4 transition-all duration-200"
-            style={{ borderColor: "rgba(59,130,246,0.25)" }}
+            style={{ borderColor: "rgba(237,237,232,0.25)" }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "rgba(96,165,250,0.6)";
-              e.currentTarget.style.color = "#60A5FA";
+              e.currentTarget.style.borderColor = "rgba(237,237,232,0.6)";
+              e.currentTarget.style.color = "#9C9C97";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgba(59,130,246,0.25)";
+              e.currentTarget.style.borderColor = "rgba(237,237,232,0.25)";
               e.currentTarget.style.color = "#9A9A9A";
             }}
           >

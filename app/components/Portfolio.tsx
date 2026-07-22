@@ -62,7 +62,7 @@ export default function Portfolio() {
   const images = getImages(active);
 
   return (
-    <section id="portfolio" ref={ref} className="relative" style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}>
+    <section id="portfolio" ref={ref} className="relative" style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}>
 
       {/* ── Header ───────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6 pt-20 pb-10">

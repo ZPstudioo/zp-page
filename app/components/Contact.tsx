@@ -34,7 +34,7 @@ export default function Contact() {
   ];
 
   return (
-    <section id="contato" ref={ref} className="relative py-32 px-6" style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}>
+    <section id="contato" ref={ref} className="relative py-32 px-6" style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}>
       <div className="max-w-2xl mx-auto flex flex-col gap-10">
 
         <motion.div
@@ -72,9 +72,9 @@ export default function Contact() {
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center gap-5 py-4 transition-colors duration-200"
-              style={{ borderBottom: "1px solid rgba(59,130,246,0.08)" }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderBottomColor = "rgba(96,165,250,0.25)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderBottomColor = "rgba(59,130,246,0.08)"; }}
+              style={{ borderBottom: "1px solid rgba(237,237,232,0.08)" }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderBottomColor = "rgba(237,237,232,0.25)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderBottomColor = "rgba(237,237,232,0.08)"; }}
             >
               <span className="text-silver/30 group-hover:text-nebula-400 transition-colors duration-200">
                 {icon}

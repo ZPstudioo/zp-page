@@ -1,4 +1,5 @@
 import CustomCursor from "./components/CustomCursor";
+import Leader from "./components/film/Leader";
 import FilmGrain from "./components/film/FilmGrain";
 import Letterbox from "./components/film/Letterbox";
 import CameraHUD from "./components/film/CameraHUD";
@@ -42,6 +43,9 @@ export default function Home() {
           <Footer />
         </main>
       </SmoothScroll>
+
+      {/* Por último no DOM: cobre tudo enquanto a contagem roda. */}
+      <Leader />
     </>
   );
 }

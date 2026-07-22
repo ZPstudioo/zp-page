@@ -39,7 +39,7 @@ export default function Testimonials() {
       id="depoimentos"
       ref={ref}
       className="relative py-32 px-6"
-      style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}
+      style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
     >
       <div className="max-w-7xl mx-auto">
 
@@ -72,7 +72,7 @@ export default function Testimonials() {
         {/* Editorial 2×2 grid */}
         <div
           className="grid md:grid-cols-2"
-          style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}
+          style={{ borderTop: "1px solid rgba(237,237,232,0.08)" }}
         >
           {testimonials.map((t, i) => (
             <motion.div
@@ -82,8 +82,8 @@ export default function Testimonials() {
               transition={{ duration: 0.55, delay: i * 0.09, ease: [0.22, 1, 0.36, 1] }}
               className="p-10 lg:p-12 flex flex-col justify-between gap-8 group hover:bg-nebula-500/[0.03] transition-colors duration-300"
               style={{
-                borderBottom: "1px solid rgba(59,130,246,0.08)",
-                borderRight: i % 2 === 0 ? "1px solid rgba(59,130,246,0.08)" : undefined,
+                borderBottom: "1px solid rgba(237,237,232,0.08)",
+                borderRight: i % 2 === 0 ? "1px solid rgba(237,237,232,0.08)" : undefined,
               }}
             >
               {/* Quote text */}

@@ -13,15 +13,15 @@ export default function Footer() {
   return (
     <footer
       style={{
-        background: "linear-gradient(180deg, #08111F 0%, #050D18 100%)",
-        borderTop: "1px solid rgba(59,130,246,0.08)",
+        background: "linear-gradient(180deg, #050505 0%, #0A0A0A 100%)",
+        borderTop: "1px solid rgba(237,237,232,0.08)",
       }}
     >
       {/* Top glow line */}
       <div
         className="h-px w-full"
         style={{
-          background: "linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.25) 50%, transparent 100%)",
+          background: "linear-gradient(90deg, transparent 0%, rgba(237,237,232,0.25) 50%, transparent 100%)",
         }}
       />
 
@@ -98,7 +98,7 @@ export default function Footer() {
 
         <div
           className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-3"
-          style={{ borderTop: "1px solid rgba(59,130,246,0.06)" }}
+          style={{ borderTop: "1px solid rgba(237,237,232,0.06)" }}
         >
           <p className="font-body text-silver/20 text-xs">
             © {new Date().getFullYear()} ZP Studio. Todos os direitos reservados.

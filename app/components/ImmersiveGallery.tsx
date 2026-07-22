@@ -60,7 +60,7 @@ export default function ImmersiveGallery() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "linear-gradient(180deg, rgba(37,99,235,0.06) 0%, transparent 40%, rgba(8,17,31,0.1) 100%)",
+            "linear-gradient(180deg, rgba(237,237,232,0.06) 0%, transparent 40%, rgba(8,17,31,0.1) 100%)",
         }}
       />
 
@@ -74,7 +74,7 @@ export default function ImmersiveGallery() {
       {/* Bottom rule */}
       <div
         className="absolute bottom-0 left-0 right-0 h-px pointer-events-none"
-        style={{ background: "linear-gradient(90deg, transparent, rgba(59,130,246,0.3), rgba(34,211,238,0.15), transparent)" }}
+        style={{ background: "linear-gradient(90deg, transparent, rgba(237,237,232,0.3), rgba(237,237,232,0.15), transparent)" }}
       />
     </section>
   );
