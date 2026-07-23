@@ -38,8 +38,31 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       const onLoad = () => ScrollTrigger.refresh();
       window.addEventListener("load", onLoad);
 
+      // Com o ScrollSmoother ativo, um `<a href="#id">` comum não rola nada:
+      // o smoother é quem passou a controlar a posição real de scroll, e o
+      // salto nativo do navegador não sabe conversar com ele. Todo link de
+      // âncora do site (Navbar, CTAs, rodapé) dependeria disso sem este
+      // intercept — por isso ele mora aqui, uma vez só, para o site inteiro.
+      const onClick = (e: MouseEvent) => {
+        const alvo = (e.target as HTMLElement)?.closest?.('a[href^="#"]') as HTMLAnchorElement | null;
+        if (!alvo) return;
+        const id = alvo.getAttribute("href")?.slice(1);
+        if (!id) return;
+        const secao = document.getElementById(id);
+        if (!secao) return;
+
+        const smoother = ScrollSmoother.get();
+        if (!smoother) return; // mobile: sem smoother, o navegador já resolve
+
+        e.preventDefault();
+        smoother.scrollTo(secao, true, "top top");
+        history.pushState(null, "", `#${id}`);
+      };
+      document.addEventListener("click", onClick);
+
       return () => {
         window.removeEventListener("load", onLoad);
+        document.removeEventListener("click", onClick);
         mm.revert();
       };
     },

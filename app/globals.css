@@ -121,6 +121,11 @@ body {
   background-repeat: repeat-x;
 }
 
+/* ── Faixa de rolagem nativa (galeria mobile) ────────────────
+   Some com a barra de scroll sem desligar o scroll em si.       */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
 /* ── Clip reveal ────────────────────────────────────────────── */
 .clip-hidden  { clip-path: inset(0 100% 0 0); }
 .clip-visible { clip-path: inset(0 0% 0 0); }

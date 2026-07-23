@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
 import { aoLiberarPalco } from "./film/leader-bus";
 
@@ -54,6 +55,8 @@ export default function Navbar() {
   );
 
   // O menu de celular anima na abertura; o `dependencies` refaz na troca.
+  // Sem `scope`: o conteúdo é portado para `document.body` (ver JSX abaixo),
+  // fora da subárvore do `header` — um `scope: raiz` não encontraria nada.
   useGSAP(
     () => {
       if (!aberto) return;
@@ -65,7 +68,7 @@ export default function Navbar() {
         ease: "cut",
       });
     },
-    { scope: raiz, dependencies: [aberto] },
+    { dependencies: [aberto] },
   );
 
   return (
@@ -81,38 +84,45 @@ export default function Navbar() {
         style={{ borderBottom: "1px solid var(--film-line)" }}
       />
 
-      {/* Menu de celular — tela cheia, tipografia grande, como cartela de filme.
-          Vem antes do <nav> no DOM para que a barra continue por cima dele
-          sem depender de z-index negativo. */}
-      {aberto && (
-        <div
-          id="menu-mobile"
-          className="fixed inset-0 flex flex-col justify-center gap-1 bg-film-black px-6 md:hidden"
-        >
-          {links.map((link) => (
-            <span key={link.href} className="mask-line">
+      {/* Menu de celular via portal para document.body.
+          Não pode ser filho do <header>: a entrada dele é animada por GSAP
+          (`gsap.from(raiz.current, { yPercent: ... })`), e isso deixa um
+          `transform` (mesmo em repouso) no elemento — qualquer `transform`
+          num ancestral vira containing block para descendentes `fixed`. O
+          menu (`inset-0`, pensado pra cobrir o viewport) passava a se
+          referenciar ao header de ~64px em vez da tela inteira, e colapsava
+          nele — os itens ficavam espremidos e o <nav> tampava os cliques. */}
+      {aberto &&
+        createPortal(
+          <div
+            id="menu-mobile"
+            className="fixed inset-0 z-[90] flex flex-col justify-center gap-1 bg-film-black px-6 md:hidden"
+          >
+            {links.map((link) => (
+              <span key={link.href} className="mask-line">
+                <a
+                  data-menu-item
+                  href={link.href}
+                  onClick={() => setAberto(false)}
+                  className="block py-1 font-display text-4xl uppercase text-film-white"
+                >
+                  {link.label}
+                </a>
+              </span>
+            ))}
+            <span className="mask-line mt-8">
               <a
                 data-menu-item
-                href={link.href}
+                href="#contato"
                 onClick={() => setAberto(false)}
-                className="block py-1 font-display text-4xl uppercase text-film-white"
+                className="inline-block border border-film-white px-7 py-3.5 font-hud text-[10px] uppercase tracking-hud text-film-white"
               >
-                {link.label}
+                Agendar ensaio
               </a>
             </span>
-          ))}
-          <span className="mask-line mt-8">
-            <a
-              data-menu-item
-              href="#contato"
-              onClick={() => setAberto(false)}
-              className="inline-block border border-film-white px-7 py-3.5 font-hud text-[10px] uppercase tracking-hud text-film-white"
-            >
-              Agendar ensaio
-            </a>
-          </span>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
 
       <nav className="relative flex items-center justify-between px-6 py-4 md:px-14">
         <a href="#hero" className="flex items-baseline gap-2.5" aria-label="ZP Studio, início">

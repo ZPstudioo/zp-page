@@ -66,7 +66,6 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${anton.variable} ${archivo.variable} ${plexMono.variable}`}>
       <head>
-        <link rel="icon" href="/favicon.ico" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

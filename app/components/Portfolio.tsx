@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect, type RefObject } from "react";
 import dynamic from "next/dynamic";
-import { gsap, useGSAP, Flip } from "@/lib/gsap";
-import { fotos, categorias, type Categoria } from "@/lib/photos";
+import Image from "next/image";
+import { gsap, useGSAP, Flip, MQ_DESKTOP } from "@/lib/gsap";
+import { fotos, categorias, type Categoria, type Foto } from "@/lib/photos";
 import Eyebrow from "./film/Eyebrow";
 
-/* A galeria WebGL é pesada — carrega só no cliente, sob demanda. */
+/* A galeria WebGL é pesada (three.js, ~870KB) — carrega só no cliente,
+   e só é montada de fato quando `usar3D` libera (ver useGaleria3D). */
 const InfiniteGallery = dynamic(() => import("@/components/ui/3d-gallery-photography"), {
   ssr: false,
   loading: () => (
@@ -21,9 +23,57 @@ const InfiniteGallery = dynamic(() => import("@/components/ui/3d-gallery-photogr
 const filtros = ["Todos", ...categorias] as const;
 type Filtro = (typeof filtros)[number];
 
+/**
+ * Decide se a cena 3D deve existir.
+ *
+ * Duas travas, as duas têm que liberar:
+ *   1. `MQ_DESKTOP` — tela grande e sem "reduzir movimento". Celular nunca
+ *      passa daqui, então o chunk do three.js nem é baixado.
+ *   2. IntersectionObserver — só monta quando a seção está a ~600px de
+ *      entrar na tela. Ninguém paga o custo do WebGL por uma seção que
+ *      talvez nunca role até ser vista.
+ */
+function useGaleria3D(ref: RefObject<HTMLElement | null>) {
+  const [desktop, setDesktop] = useState(false);
+  const [perto, setPerto] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia(MQ_DESKTOP);
+    const aplicar = () => setDesktop(mq.matches);
+    aplicar();
+    mq.addEventListener("change", aplicar);
+    return () => mq.removeEventListener("change", aplicar);
+  }, []);
+
+  useEffect(() => {
+    // Já perto: não há mais nada a observar — ver comentário abaixo sobre
+    // por que "perto" nunca volta a false.
+    const el = ref.current;
+    if (!el || !desktop || perto) return;
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        // Trava em "true" e para de observar. Se deixássemos o observer
+        // vivo, a própria troca de TiraNativa → WebGL muda a altura da
+        // seção, o que dispara o observer de novo com `isIntersecting:
+        // false` no meio da transição — e o canvas nunca chega a montar.
+        setPerto(true);
+        obs.disconnect();
+      },
+      { rootMargin: "600px 0px" },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [ref, desktop, perto]);
+
+  return desktop && perto;
+}
+
 export default function Portfolio() {
   const raiz = useRef<HTMLElement>(null);
   const [ativo, setAtivo] = useState<Filtro>("Todos");
+  const usar3D = useGaleria3D(raiz);
 
   const imagens = useMemo(
     () => (ativo === "Todos" ? fotos : fotos.filter((f) => f.categoria === (ativo as Categoria))),
@@ -96,40 +146,73 @@ export default function Portfolio() {
         </div>
       </div>
 
-      {/* Palco WebGL */}
-      <div className="relative w-full" style={{ height: "82vh" }}>
-        <InfiniteGallery
-          images={imagens}
-          speed={1.0}
-          visibleCount={8}
-          className="h-full w-full"
-          fadeSettings={{ fadeIn: { start: 0.05, end: 0.22 }, fadeOut: { start: 0.42, end: 0.46 } }}
-          blurSettings={{ blurIn: { start: 0.0, end: 0.1 }, blurOut: { start: 0.42, end: 0.46 }, maxBlur: 6.0 }}
-        />
+      {usar3D ? (
+        /* ── Desktop: o palco WebGL ─────────────────────────────── */
+        <div className="relative w-full" style={{ height: "82vh" }}>
+          <InfiniteGallery
+            images={imagens}
+            speed={1.0}
+            visibleCount={8}
+            className="h-full w-full"
+            fadeSettings={{ fadeIn: { start: 0.05, end: 0.22 }, fadeOut: { start: 0.42, end: 0.46 } }}
+            blurSettings={{ blurIn: { start: 0.0, end: 0.1 }, blurOut: { start: 0.42, end: 0.46 }, maxBlur: 6.0 }}
+          />
 
-        {/* Vinheta — funde a cena no preto */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{ background: "radial-gradient(ellipse 82% 82% at 50% 50%, transparent 38%, rgba(5,5,5,0.92) 100%)" }}
-        />
+          {/* Vinheta — funde a cena no preto */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{ background: "radial-gradient(ellipse 82% 82% at 50% 50%, transparent 38%, rgba(5,5,5,0.92) 100%)" }}
+          />
 
-        {/* Nome do filtro, grande, atrás dos planos */}
-        <div className="pointer-events-none absolute inset-0 flex items-end justify-center pb-12 mix-blend-difference">
-          <p
-            key={ativo}
-            className="font-display uppercase leading-none text-film-white/80"
-            style={{ fontSize: "clamp(3rem, 10vw, 8rem)" }}
-          >
-            {ativo}
+          {/* Nome do filtro, grande, atrás dos planos */}
+          <div className="pointer-events-none absolute inset-0 flex items-end justify-center pb-12 mix-blend-difference">
+            <p
+              key={ativo}
+              className="font-display uppercase leading-none text-film-white/80"
+              style={{ fontSize: "clamp(3rem, 10vw, 8rem)" }}
+            >
+              {ativo}
+            </p>
+          </div>
+
+          <p className="pointer-events-none absolute inset-x-0 bottom-4 text-center font-hud text-[9px] uppercase tracking-hud text-film-grey">
+            ← → setas ou role para navegar
           </p>
         </div>
-
-        {/* Instrução */}
-        <p className="pointer-events-none absolute inset-x-0 bottom-4 text-center font-hud text-[9px] uppercase tracking-hud text-film-grey">
-          ← → setas ou role para navegar
-        </p>
-      </div>
+      ) : (
+        /* ── Mobile (e reduced-motion): rolo nativo ─────────────── */
+        <TiraNativa fotos={imagens} />
+      )}
     </section>
+  );
+}
+
+/** Faixa horizontal com scroll nativo — o toque do celular já é melhor
+ *  que qualquer simulação, então não se tenta imitar o efeito 3D aqui. */
+function TiraNativa({ fotos: lista }: { fotos: Foto[] }) {
+  return (
+    <div className="relative">
+      <div className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-6 pt-2">
+        {lista.map((f, i) => (
+          <div
+            key={f.src + i}
+            className="halation relative shrink-0 snap-start overflow-hidden bg-film-900"
+            style={{ width: "min(78vw, 340px)", aspectRatio: f.ratio }}
+          >
+            <Image
+              src={f.src}
+              alt={f.alt}
+              fill
+              sizes="(max-width: 767px) 78vw, 340px"
+              className="object-cover"
+            />
+          </div>
+        ))}
+      </div>
+      <p className="px-6 pb-8 font-hud text-[9px] uppercase tracking-hud text-film-grey">
+        deslize para o lado →
+      </p>
+    </div>
   );
 }
