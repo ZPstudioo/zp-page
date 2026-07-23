@@ -212,3 +212,4 @@ Reformulação completa. Só falta o acervo real de fotos (Drive privado, ainda 
 ✓ Imagem veio de `lib/photos.ts` ✓ Mobile conferido
 ✓ Reduced-motion conferido ✓ Sem `console` esquecido
 ✓ Changelog, se foi entrega de valor
+

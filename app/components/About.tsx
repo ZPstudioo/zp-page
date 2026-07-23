@@ -42,23 +42,28 @@ export default function About() {
           .from("[data-para]", { autoAlpha: 0, y: 20, duration: 0.8, stagger: 0.12 }, 0.5);
 
         // Contadores: sobem de 0 ao valor, arredondando a cada quadro.
+        // O HTML já traz o valor final (para quem não tem JS), então o
+        // zero é posto no início da timeline — senão o número piscaria
+        // do final para o zero antes de começar a contar.
         const counters = gsap.utils.toArray<HTMLElement>("[data-num]", el);
         counters.forEach((node) => {
           const alvo = Number(node.dataset.num);
+          if (!Number.isFinite(alvo)) return;
           const sufixo = node.dataset.suf ?? "";
           const obj = { v: 0 };
-          tl.to(
-            obj,
-            {
-              v: alvo,
-              duration: 1.6,
-              ease: "dolly",
-              onUpdate: () => {
-                node.textContent = fmt(Math.round(obj.v)) + sufixo;
+          tl.set(node, { textContent: "0" + sufixo }, 0)
+            .to(
+              obj,
+              {
+                v: alvo,
+                duration: 1.6,
+                ease: "dolly",
+                onUpdate: () => {
+                  node.textContent = fmt(Math.round(obj.v)) + sufixo;
+                },
               },
-            },
-            0.6,
-          );
+              0.6,
+            );
         });
 
         return () => tl.scrollTrigger?.kill();
@@ -73,13 +78,13 @@ export default function About() {
     <section
       id="sobre"
       ref={raiz}
-      className="relative px-6 py-28 md:py-40 md:px-14"
+      className="relative px-6 py-20 md:py-40 md:px-14"
       style={{ borderTop: "1px solid var(--film-line)" }}
     >
       <div className="mx-auto grid max-w-7xl items-center gap-14 md:grid-cols-2 lg:gap-24">
         {/* Foto */}
         <div className="relative">
-          <div data-foto className="halation relative aspect-[4/5] overflow-hidden bg-film-900">
+          <div data-foto className="halation relative aspect-[4/3] overflow-hidden bg-film-900 sm:aspect-[4/5]">
             <Image
               src={retrato.src}
               alt={retrato.alt}
@@ -99,7 +104,8 @@ export default function About() {
         <div>
           <Eyebrow cena="Cena 02">Direção</Eyebrow>
 
-          <h2 className="font-display text-4xl uppercase leading-[0.92] text-film-white sm:text-5xl lg:text-6xl">
+          {/* "É A TÉCNICA." começa com acento: precisa de 1.18 (ver globals.css) */}
+          <h2 className="font-display text-4xl uppercase leading-[1.18] text-film-white sm:text-5xl lg:text-6xl">
             <span className="mask-line">
               <span data-linha className="block">O olhar</span>
             </span>
@@ -127,14 +133,18 @@ export default function About() {
           >
             {numeros.map((n) => (
               <div key={n.label} data-para>
+                {/* O valor precisa ir no atributo: sem ele o React escreve
+                    `data-num="true"` e a animação lia NaN. */}
                 <dd
-                  data-num
+                  data-num={n.valor}
                   data-suf={n.sufixo}
-                  className="font-hud text-2xl tabular-nums text-film-white lg:text-3xl"
+                  className="font-hud text-xl tabular-nums text-film-white sm:text-2xl lg:text-3xl"
                 >
-                  0
+                  {/* Valor final já no HTML: quem não tem JS, ou chega antes
+                      da animação, vê o número certo — nunca um zero solto. */}
+                  {fmt(n.valor) + n.sufixo}
                 </dd>
-                <dt className="mt-1.5 font-hud text-[9px] uppercase tracking-hud text-film-grey">
+                <dt className="mt-2 font-hud text-[9px] uppercase leading-relaxed tracking-hud text-film-grey">
                   {n.label}
                 </dt>
               </div>

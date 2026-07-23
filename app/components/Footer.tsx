@@ -36,10 +36,13 @@ export default function Footer() {
           {/* Cenas */}
           <div className="pt-8">
             <p className="mb-4 font-hud text-[9px] uppercase tracking-hud text-film-grey">Cenas</p>
-            <ul className="flex flex-col gap-2.5">
+            <ul className="flex flex-col">
               {navegar.map((l) => (
                 <li key={l.href}>
-                  <a href={l.href} className="font-body text-sm text-film-400 transition-colors duration-300 hover:text-film-white">
+                  <a
+                    href={l.href}
+                    className="flex min-h-[44px] items-center font-body text-sm text-film-400 transition-colors duration-300 hover:text-film-white"
+                  >
                     {l.label}
                   </a>
                 </li>
@@ -50,22 +53,22 @@ export default function Footer() {
           {/* Contato */}
           <div className="pt-8">
             <p className="mb-4 font-hud text-[9px] uppercase tracking-hud text-film-grey">Contato</p>
-            <div className="flex flex-col gap-2.5 font-body text-sm text-film-400">
-              <a href="tel:+5511999999999" className="transition-colors duration-300 hover:text-film-white">(11) 99999-9999</a>
-              <a href="mailto:contato@zpstudio.com.br" className="transition-colors duration-300 hover:text-film-white">contato@zpstudio.com.br</a>
-              <span className="font-hud text-[10px] uppercase tracking-hud text-film-grey">Seg–Sex · 9h–18h</span>
+            <div className="flex flex-col font-body text-sm text-film-400">
+              <a href="tel:+5511999999999" className="flex min-h-[44px] items-center transition-colors duration-300 hover:text-film-white">(11) 99999-9999</a>
+              <a href="mailto:contato@zpstudio.com.br" className="flex min-h-[44px] items-center break-all transition-colors duration-300 hover:text-film-white">contato@zpstudio.com.br</a>
+              <span className="mt-2 font-hud text-[10px] uppercase tracking-hud text-film-grey">Seg–Sex · 9h–18h</span>
             </div>
           </div>
 
           {/* Social */}
           <div className="pt-8">
             <p className="mb-4 font-hud text-[9px] uppercase tracking-hud text-film-grey">Sigam</p>
-            <div className="flex items-center gap-4">
-              <a href="https://instagram.com/zp.studio_oficial" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-film-grey transition-colors duration-300 hover:text-film-white">
-                <Instagram size={17} />
+            <div className="-ml-3 flex items-center gap-1">
+              <a href="https://instagram.com/zp.studio_oficial" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex h-11 w-11 items-center justify-center text-film-grey transition-colors duration-300 hover:text-film-white">
+                <Instagram size={18} />
               </a>
-              <a href="mailto:contato@zpstudio.com.br" aria-label="E-mail" className="text-film-grey transition-colors duration-300 hover:text-film-white">
-                <Mail size={17} />
+              <a href="mailto:contato@zpstudio.com.br" aria-label="E-mail" className="flex h-11 w-11 items-center justify-center text-film-grey transition-colors duration-300 hover:text-film-white">
+                <Mail size={18} />
               </a>
             </div>
           </div>

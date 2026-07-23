@@ -60,7 +60,7 @@ export default function Services() {
     <section
       id="servicos"
       ref={raiz}
-      className="relative overflow-hidden px-6 py-28 md:py-40 md:px-14"
+      className="relative overflow-hidden px-6 py-20 md:py-40 md:px-14"
       style={{ borderTop: "1px solid var(--film-line)" }}
     >
       {/* Foto flutuante — desktop; segue o mouse e troca por dissolve */}
@@ -99,7 +99,10 @@ export default function Services() {
           </p>
         </div>
 
-        {/* Lista gigante */}
+        {/* Lista gigante.
+            No mobile cada linha carrega a própria foto: o toque não tem
+            hover, então a foto flutuante do desktop nunca apareceria e a
+            seção — que vende fotografia — ficaria só texto cinza. */}
         <ul style={{ borderTop: "1px solid var(--film-line)" }}>
           {servicos.map((s, i) => (
             <li
@@ -111,29 +114,44 @@ export default function Services() {
               <a
                 data-linha
                 href="#contato"
-                className="group flex items-center gap-5 py-6 md:py-8"
+                className="group block py-7 md:flex md:items-center md:gap-5 md:py-8"
                 style={{ borderBottom: "1px solid var(--film-line)" }}
               >
-                <span className="w-10 shrink-0 font-hud text-[11px] text-film-grey">
-                  0{i + 1}
+                {/* Cabeça da linha: número + título */}
+                <span className="flex items-baseline gap-4 md:contents">
+                  <span className="w-8 shrink-0 font-hud text-[11px] text-film-grey md:w-10">
+                    0{i + 1}
+                  </span>
+                  <span className="flex-1 font-display text-4xl uppercase leading-[0.9] text-film-white transition-colors duration-300 md:text-film-grey md:group-hover:text-film-white sm:text-5xl lg:text-7xl">
+                    {s.titulo}
+                  </span>
                 </span>
 
-                <span
-                  className="flex-1 font-display text-4xl uppercase leading-none text-film-grey transition-colors duration-300 group-hover:text-film-white sm:text-6xl lg:text-7xl"
-                >
-                  {s.titulo}
+                {/* Foto — só mobile */}
+                <span className="halation relative mt-4 block aspect-[16/10] w-full overflow-hidden bg-film-900 md:hidden">
+                  <Image
+                    src={s.foto.src}
+                    alt={s.foto.alt}
+                    fill
+                    sizes="100vw"
+                    className="object-cover"
+                  />
                 </span>
 
-                <span className="hidden max-w-[16rem] flex-1 font-body text-xs leading-relaxed text-film-grey lg:block">
+                {/* Descrição: aparece no mobile e no desktop largo; some no
+                    md, onde a linha fica apertada demais para caber. */}
+                <span className="mt-4 block max-w-[16rem] font-body text-xs leading-relaxed text-film-grey md:mt-0 md:hidden lg:block lg:flex-1">
                   {s.desc}
                 </span>
 
-                <span className="shrink-0 font-hud text-[10px] uppercase tracking-hud text-film-400">
-                  {s.preco}
-                </span>
-
-                <span className="shrink-0 font-hud text-film-grey transition-transform duration-300 group-hover:translate-x-1 group-hover:text-film-white">
-                  ↗
+                {/* Rodapé da linha: preço + seta */}
+                <span className="mt-3 flex items-center justify-between gap-3 md:mt-0 md:contents">
+                  <span className="font-hud text-[10px] uppercase tracking-hud text-film-400 md:shrink-0">
+                    {s.preco}
+                  </span>
+                  <span className="font-hud text-film-grey transition-transform duration-300 group-hover:translate-x-1 group-hover:text-film-white md:shrink-0">
+                    ↗
+                  </span>
                 </span>
               </a>
             </li>

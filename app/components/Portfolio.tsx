@@ -114,7 +114,7 @@ export default function Portfolio() {
       className="relative"
       style={{ borderTop: "1px solid var(--film-line)" }}
     >
-      <div className="mx-auto max-w-7xl px-6 pb-8 pt-28 md:px-14 md:pt-40">
+      <div className="mx-auto max-w-7xl px-6 pb-6 pt-20 md:px-14 md:pt-40">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div data-cab>
             <Eyebrow cena="Cena 04">Galeria</Eyebrow>
@@ -123,20 +123,24 @@ export default function Portfolio() {
             </h2>
           </div>
 
-          {/* Abas com marcador Flip */}
-          <div data-cab className="flex flex-wrap gap-1">
+          {/* Abas com marcador Flip. Rolam na horizontal no mobile em vez de
+              quebrar em duas fileiras, e cada uma tem 44px de altura de toque. */}
+          <div
+            data-cab
+            className="no-scrollbar -mx-6 flex gap-1 overflow-x-auto px-6 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
+          >
             {filtros.map((f) => (
               <button
                 key={f}
                 onClick={() => trocar(f)}
-                className="relative px-4 py-2 font-hud text-[10px] uppercase tracking-hud transition-colors duration-300"
+                className="relative flex min-h-[44px] shrink-0 items-center px-4 font-hud text-[11px] uppercase tracking-hud transition-colors duration-300"
                 style={{ color: ativo === f ? "#EDEDE8" : "#6B6B6B" }}
               >
                 {ativo === f && (
                   <span
                     data-marcador
                     aria-hidden
-                    className="absolute inset-x-2 -bottom-px h-px bg-film-white"
+                    className="absolute inset-x-2 bottom-0 h-px bg-film-white"
                   />
                 )}
                 {f}
@@ -191,9 +195,25 @@ export default function Portfolio() {
 /** Faixa horizontal com scroll nativo — o toque do celular já é melhor
  *  que qualquer simulação, então não se tenta imitar o efeito 3D aqui. */
 function TiraNativa({ fotos: lista }: { fotos: Foto[] }) {
+  const [visivel, setVisivel] = useState(1);
+  const trilho = useRef<HTMLDivElement>(null);
+
+  // Qual foto está no centro da tela — alimenta o contador "03 / 18".
+  // `onScroll` é barato aqui: só escreve um número, sem tocar no layout.
+  const aoRolar = () => {
+    const el = trilho.current;
+    if (!el) return;
+    const largura = el.scrollWidth / lista.length;
+    setVisivel(Math.min(lista.length, Math.round(el.scrollLeft / largura) + 1));
+  };
+
   return (
     <div className="relative">
-      <div className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-6 pt-2">
+      <div
+        ref={trilho}
+        onScroll={aoRolar}
+        className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-6 pt-2"
+      >
         {lista.map((f, i) => (
           <div
             key={f.src + i}
@@ -205,14 +225,23 @@ function TiraNativa({ fotos: lista }: { fotos: Foto[] }) {
               alt={f.alt}
               fill
               sizes="(max-width: 767px) 78vw, 340px"
+              /* As três primeiras chegam com o resto da tela; o restante
+                 só baixa quando o dedo chega perto. */
+              loading={i < 3 ? "eager" : "lazy"}
               className="object-cover"
             />
           </div>
         ))}
       </div>
-      <p className="px-6 pb-8 font-hud text-[9px] uppercase tracking-hud text-film-grey">
-        deslize para o lado →
-      </p>
+
+      <div className="flex items-center justify-between px-6 pb-10">
+        <span className="font-hud text-[10px] uppercase tracking-hud text-film-grey">
+          deslize →
+        </span>
+        <span className="font-hud text-[10px] tabular-nums tracking-hud text-film-400">
+          {String(visivel).padStart(2, "0")} / {String(lista.length).padStart(2, "0")}
+        </span>
+      </div>
     </div>
   );
 }

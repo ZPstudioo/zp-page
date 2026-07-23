@@ -53,7 +53,7 @@ export default function Testimonials() {
     <section
       id="depoimentos"
       ref={raiz}
-      className="relative px-6 py-28 md:py-40 md:px-14"
+      className="relative px-6 py-20 md:py-40 md:px-14"
       style={{ borderTop: "1px solid var(--film-line)" }}
     >
       <div className="mx-auto max-w-4xl">
@@ -61,15 +61,18 @@ export default function Testimonials() {
           <Eyebrow cena="Cena 06">Crítica</Eyebrow>
         </div>
 
-        <div data-reveal data-cartao className="min-h-[16rem]">
-          <blockquote className="font-display text-3xl uppercase leading-[1.05] text-film-white sm:text-4xl lg:text-5xl">
+        <div data-reveal data-cartao className="min-h-[15rem] sm:min-h-[16rem]">
+          {/* Archivo, não Anton: uma citação de 5 linhas em fonte display
+              vira parede de caixa alta — ilegível no celular. O peso da
+              seção vem do tamanho e do respiro, não da fonte. */}
+          <blockquote className="font-body text-lg font-medium leading-[1.5] text-film-white sm:text-xl sm:leading-[1.45] lg:text-2xl">
             “{c.texto}”
           </blockquote>
-          <div className="mt-10 flex items-center gap-4">
-            <span className="h-px w-8 bg-film-white" aria-hidden />
+          <div className="mt-8 flex items-center gap-4">
+            <span className="h-px w-8 shrink-0 bg-film-white" aria-hidden />
             <div>
-              <p className="font-body text-sm text-film-white">{c.nome}</p>
-              <p className="mt-0.5 font-hud text-[9px] uppercase tracking-hud text-film-grey">{c.papel}</p>
+              <p className="font-display text-lg uppercase leading-[0.95] text-film-white">{c.nome}</p>
+              <p className="mt-1 font-hud text-[9px] uppercase tracking-hud text-film-grey">{c.papel}</p>
             </div>
           </div>
         </div>
@@ -86,14 +89,14 @@ export default function Testimonials() {
           <div className="flex gap-3">
             <button
               onClick={() => ir(i - 1)}
-              className="flex h-10 w-10 items-center justify-center border border-film-white/25 font-hud text-film-white transition-colors duration-300 hover:bg-film-white hover:text-film-black"
+              className="flex h-12 w-12 items-center justify-center border border-film-white/25 font-hud text-film-white transition-colors duration-300 hover:bg-film-white hover:text-film-black"
               aria-label="Anterior"
             >
               ←
             </button>
             <button
               onClick={() => ir(i + 1)}
-              className="flex h-10 w-10 items-center justify-center border border-film-white/25 font-hud text-film-white transition-colors duration-300 hover:bg-film-white hover:text-film-black"
+              className="flex h-12 w-12 items-center justify-center border border-film-white/25 font-hud text-film-white transition-colors duration-300 hover:bg-film-white hover:text-film-black"
               aria-label="Próximo"
             >
               →

@@ -92,19 +92,22 @@ export default function Process() {
       className="relative overflow-hidden md:h-screen"
       style={{ borderTop: "1px solid var(--film-line)" }}
     >
-      {/* Cabeçalho fixo dentro do pin */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 px-6 pt-24 md:px-14 md:pt-28">
+      {/* Cabeçalho.
+          No desktop flutua sobre o pin (`absolute`). No mobile precisa
+          voltar para o fluxo, senão cai em cima do primeiro card. */}
+      <div className="relative z-10 px-6 pt-20 md:pointer-events-none md:absolute md:inset-x-0 md:top-0 md:px-14 md:pt-28">
         <Eyebrow cena="Cena 05">Processo</Eyebrow>
-        <h2 className="font-display text-4xl uppercase leading-[0.9] text-film-white sm:text-5xl">
+        <h2 className="font-display text-4xl uppercase leading-[0.88] text-film-white sm:text-5xl">
           Do bruto ao corte
         </h2>
       </div>
 
-      {/* Trilho horizontal (desktop) / coluna (mobile) */}
+      {/* Trilho: linha do tempo vertical no mobile, horizontal no desktop.
+          `w-max` é o que permite o scroll horizontal — mas só no desktop;
+          no mobile ele faria o texto vazar para fora da tela. */}
       <div
         data-trilho
-        className="flex flex-col gap-6 px-6 py-28 md:h-full md:flex-row md:items-center md:gap-0 md:px-0 md:py-0"
-        style={{ width: "max-content" }}
+        className="flex w-full flex-col gap-9 px-6 pb-20 pt-10 md:h-full md:w-max md:flex-row md:items-center md:gap-0 md:px-0 md:py-0"
       >
         {/* Espaçador para o primeiro card não colar no cabeçalho (desktop) */}
         <div className="hidden md:block md:w-[42vw] md:shrink-0" aria-hidden />
@@ -116,12 +119,12 @@ export default function Process() {
             className="shrink-0 md:flex md:h-full md:w-[38vw] md:flex-col md:justify-center md:px-14"
             style={{ borderLeft: "1px solid var(--film-line)" }}
           >
-            <div className="pl-6 md:pl-0">
+            <div className="pl-5 md:pl-0">
               <span className="font-hud text-[11px] tracking-hud text-film-grey">{e.n} / 05</span>
-              <h3 className="mt-4 font-display text-5xl uppercase leading-none text-film-white md:text-7xl">
+              <h3 className="mt-3 font-display text-4xl uppercase leading-[0.9] text-film-white sm:text-5xl md:mt-4 md:text-7xl">
                 {e.titulo}
               </h3>
-              <p className="mt-6 max-w-sm font-body text-sm leading-relaxed text-film-grey">
+              <p className="mt-4 max-w-sm font-body text-sm leading-relaxed text-film-grey md:mt-6">
                 {e.desc}
               </p>
             </div>

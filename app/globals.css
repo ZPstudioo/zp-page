@@ -52,8 +52,26 @@ body {
 /* O ScrollSmoother precisa que o wrapper não crie scroll próprio. */
 #smooth-wrapper { overflow: visible; }
 
-/* Display condensado: a fonte já é estreita, o aperto é de tracking. */
-.font-display { letter-spacing: -0.045em; line-height: 0.86; }
+/* Display condensado: a fonte já é estreita, o aperto é de tracking.
+   Mora em @layer base de propósito: assim as utilitárias `leading-*` do
+   Tailwind vencem esta regra. Antes ela ficava solta no fim do arquivo e
+   silenciosamente sobrescrevia todo `leading-*` escrito nos componentes.
+
+   Medido no Anton, em CAIXA ALTA, a 100px:
+     sem acento (A E C)  → glifo ocupa 0.88em
+     com acento (Ã É Ç)  → glifo ocupa 1.42em  (o til sobe a 1.11em)
+
+   Daí a regra da casa:
+     • título de UMA linha           → pode apertar até `leading-[0.9]`
+     • multi-linha SEM acento        → `leading-[0.92]` é seguro
+     • multi-linha COM acento        → mínimo `leading-[1.18]`
+   O padrão 1.15 abaixo é o valor seguro para quem esquecer de declarar. */
+@layer base {
+  .font-display {
+    letter-spacing: -0.045em;
+    line-height: 1.15;
+  }
+}
 
 /* ── Cursor ─────────────────────────────────────────────────── */
 @media (hover: hover) and (pointer: fine) {

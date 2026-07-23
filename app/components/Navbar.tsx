@@ -125,7 +125,7 @@ export default function Navbar() {
         )}
 
       <nav className="relative flex items-center justify-between px-6 py-4 md:px-14">
-        <a href="#hero" className="flex items-baseline gap-2.5" aria-label="ZP Studio, início">
+        <a href="#hero" className="flex min-h-[44px] items-center gap-2.5" aria-label="ZP Studio, início">
           <span className="font-display text-base uppercase tracking-[0.14em] text-film-white">
             ZP Studio
           </span>
@@ -157,7 +157,7 @@ export default function Navbar() {
 
         <button
           onClick={() => setAberto((v) => !v)}
-          className="flex h-8 w-8 flex-col items-end justify-center gap-1.5 md:hidden"
+          className="-mr-2 flex h-11 w-11 flex-col items-end justify-center gap-1.5 pr-2 md:hidden"
           aria-expanded={aberto}
           aria-controls="menu-mobile"
           aria-label={aberto ? "Fechar menu" : "Abrir menu"}

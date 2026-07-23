@@ -161,9 +161,10 @@ export default function Hero() {
       aria-label="Início"
       className="relative h-[100svh] overflow-hidden bg-black"
     >
-      {/* Foto sangrada. O container extrapola em 12% para o parallax ter
-          folga e nunca revelar borda vazia. */}
-      <div data-speed="0.88" className="absolute inset-x-0 -inset-y-[12%]">
+      {/* Foto sangrada. No desktop o container extrapola 12% para o parallax
+          ter folga e nunca revelar borda vazia; no mobile o parallax não roda
+          (sem ScrollSmoother), então a folga só desperdiçaria enquadramento. */}
+      <div data-speed="0.88" className="absolute inset-0 md:inset-x-0 md:-inset-y-[12%]">
         <div data-mouse className="absolute inset-0">
           <div data-zoom className="absolute inset-0">
             <Image
@@ -185,7 +186,7 @@ export default function Hero() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to top, rgba(5,5,5,0.92) 0%, rgba(5,5,5,0.55) 38%, rgba(5,5,5,0.15) 70%, rgba(5,5,5,0.45) 100%)",
+            "linear-gradient(to top, rgba(5,5,5,0.94) 0%, rgba(5,5,5,0.78) 30%, rgba(5,5,5,0.42) 58%, rgba(5,5,5,0.12) 78%, rgba(5,5,5,0.5) 100%)",
         }}
       />
 
@@ -195,13 +196,14 @@ export default function Hero() {
         className="absolute inset-0 flex flex-col justify-end px-6 sm:px-10 md:px-14"
         style={{ paddingBottom: "calc(var(--letterbox-h, 24px) + 3.25rem)" }}
       >
-        <p data-sobe className="mb-5 font-hud text-[10px] uppercase tracking-hud text-film-400">
+        <p data-sobe className="mb-5 font-hud text-[10px] uppercase tracking-hud text-film-white/75">
           São Paulo · Desde 2016
         </p>
 
         <h1
           data-titulo
-          className="font-display uppercase text-film-white"
+          /* "FOTOGRAFIA QUE RESPIRA." não tem acento — pode apertar. */
+          className="font-display uppercase leading-[0.92] text-film-white md:leading-[0.88]"
           style={{ fontSize: "clamp(3.2rem, 13vw, 12rem)" }}
         >
           {TITULO.map((linha) => (
@@ -224,13 +226,13 @@ export default function Hero() {
           <div data-sobe className="flex flex-wrap items-center gap-8">
             <a
               href="#contato"
-              className="border border-film-white px-8 py-4 font-body text-[10px] font-semibold uppercase tracking-label text-film-white transition-colors duration-300 hover:bg-film-white hover:text-film-black"
+              className="inline-flex items-center justify-center border border-film-white px-8 py-4 font-body text-[11px] font-semibold uppercase tracking-label text-film-white transition-colors duration-300 hover:bg-film-white hover:text-film-black"
             >
               Agendar ensaio
             </a>
             <a
               href="#portfolio"
-              className="font-hud text-[10px] uppercase tracking-hud text-film-400 transition-colors duration-300 hover:text-film-white"
+              className="inline-flex min-h-[44px] items-center font-hud text-[11px] uppercase tracking-hud text-film-400 transition-colors duration-300 hover:text-film-white"
             >
               Ver portfólio
             </a>

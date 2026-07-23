@@ -32,7 +32,7 @@ export default function Contact() {
     <section
       id="contato"
       ref={raiz}
-      className="relative px-6 py-28 md:py-40 md:px-14"
+      className="relative px-6 py-20 md:py-40 md:px-14"
       style={{ borderTop: "1px solid var(--film-line)" }}
     >
       <div className="mx-auto grid max-w-6xl gap-14 md:grid-cols-[1fr_1fr]">
@@ -42,7 +42,7 @@ export default function Contact() {
           </div>
           <h2
             data-reveal
-            className="font-display text-4xl uppercase leading-[0.92] text-film-white sm:text-5xl lg:text-6xl"
+            className="font-display text-4xl uppercase leading-[0.94] text-film-white sm:text-5xl lg:text-6xl"
           >
             Marque a<br />primeira cena.
           </h2>

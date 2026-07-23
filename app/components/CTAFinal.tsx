@@ -55,7 +55,7 @@ export default function CTAFinal() {
   return (
     <section
       ref={raiz}
-      className="relative overflow-hidden bg-film-white px-6 py-32 text-film-black sm:py-44 md:px-14"
+      className="relative overflow-hidden bg-film-white px-6 py-24 text-film-black sm:py-44 md:px-14"
     >
       {/* Flash de estouro */}
       <div data-flash aria-hidden className="pointer-events-none absolute inset-0 z-20 bg-white opacity-0" />
@@ -67,7 +67,7 @@ export default function CTAFinal() {
 
         <h2
           data-titulo
-          className="font-display uppercase leading-[0.86] text-film-black"
+          className="font-display uppercase leading-[0.92] text-film-black md:leading-[0.88]"
           style={{ fontSize: "clamp(3rem, 11vw, 9rem)" }}
         >
           <span className="block">Vamos</span>
