@@ -225,6 +225,8 @@ function TiraNativa({ fotos: lista }: { fotos: Foto[] }) {
               alt={f.alt}
               fill
               sizes="(max-width: 767px) 78vw, 340px"
+              placeholder="blur"
+              blurDataURL={f.blur}
               /* As três primeiras chegam com o resto da tela; o restante
                  só baixa quando o dedo chega perto. */
               loading={i < 3 ? "eager" : "lazy"}

@@ -6,8 +6,8 @@ import { gsap, useGSAP, MQ_MOTION } from "@/lib/gsap";
 import { fotos } from "@/lib/photos";
 import Eyebrow from "./film/Eyebrow";
 
-/** Uma retrato do acervo para ilustrar o estúdio. */
-const retrato = fotos.find((f) => f.categoria === "Retratos") ?? fotos[0];
+/** A foto que ilustra a direção do estúdio — a mais gestual do acervo. */
+const retrato = fotos.find((f) => f.src.includes("familia-bebe-no-alto")) ?? fotos[0];
 
 const numeros = [
   { valor: 128400, sufixo: "", label: "frames capturados" },
@@ -91,7 +91,9 @@ export default function About() {
               fill
               quality={85}
               sizes="(max-width: 768px) 100vw, 45vw"
-              className="object-cover"
+              placeholder="blur"
+              blurDataURL={retrato.blur}
+              className="object-cover object-top"
             />
           </div>
           <span className="absolute -bottom-3 -right-3 h-9 w-9 border-b border-r border-film-white/40" aria-hidden />

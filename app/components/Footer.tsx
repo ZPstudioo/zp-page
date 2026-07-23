@@ -29,7 +29,7 @@ export default function Footer() {
           <div className="pt-8">
             <p className="mb-4 font-hud text-[9px] uppercase tracking-hud text-film-grey">Direção</p>
             <p className="max-w-xs font-body text-sm leading-relaxed text-film-400">
-              Fotografia de retratos, casais, gestante e eventos. São Paulo, desde 2016.
+              Fotografia de casais, famílias, retratos e eventos. São Paulo, desde 2016.
             </p>
           </div>
 

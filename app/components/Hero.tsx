@@ -174,7 +174,13 @@ export default function Hero() {
               priority
               quality={85}
               sizes="100vw"
+              placeholder="blur"
+              blurDataURL={heroFoto.blur}
+              /* Foto vertical num quadro horizontal: sem `object-position`
+                 o corte central come os rostos no desktop. 42% deixa o
+                 casal no terço superior, onde o título não o cobre. */
               className="object-cover"
+              style={{ objectPosition: "50% 42%" }}
             />
           </div>
         </div>
@@ -220,7 +226,7 @@ export default function Hero() {
             data-sobe
             className="max-w-sm font-body text-sm leading-relaxed text-film-400"
           >
-            Retratos, casais, gestante e eventos — com a luz que cada momento pede.
+            Casais, famílias, retratos e eventos — com a luz que cada momento pede.
           </p>
 
           <div data-sobe className="flex flex-wrap items-center gap-8">

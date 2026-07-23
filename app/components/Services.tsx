@@ -6,14 +6,20 @@ import { gsap, useGSAP, MQ_FINE } from "@/lib/gsap";
 import { fotos } from "@/lib/photos";
 import Eyebrow from "./film/Eyebrow";
 
-/** Um serviço por linha; a foto vem do acervo, por categoria. */
-const porCat = (c: string) => fotos.find((f) => f.categoria === c) ?? fotos[0];
+/**
+ * O estúdio vende estas cinco modalidades. A foto só entra quando existe
+ * trabalho real daquele tipo no acervo — ilustrar "Gestante" com uma foto
+ * de casal seria mentir sobre o portfólio. Quando as fotos dessas sessões
+ * chegarem ao manifesto, é só apontar aqui.
+ */
+const acha = (slug: string) => fotos.find((f) => f.src.includes(slug));
 
 const servicos = [
-  { titulo: "Casal", desc: "Histórias de dois, sem pose forçada.", preco: "a partir de R$ 600", foto: porCat("Casais") },
-  { titulo: "Retrato", desc: "Sua presença traduzida em uma imagem.", preco: "a partir de R$ 400", foto: porCat("Retratos") },
-  { titulo: "Gestante", desc: "O tempo da espera, em luz.", preco: "a partir de R$ 700", foto: porCat("Gestante") },
-  { titulo: "Eventos", desc: "Casamentos e celebrações, cobertura completa.", preco: "sob consulta", foto: porCat("Eventos") },
+  { titulo: "Casal", desc: "Histórias de dois, sem pose forçada.", preco: "a partir de R$ 600", foto: acha("casal-testas-encostadas") },
+  { titulo: "Família", desc: "Todo mundo junto, do jeito que vocês são.", preco: "a partir de R$ 800", foto: acha("familia-bebe-no-alto") },
+  { titulo: "Retrato", desc: "Sua presença traduzida em uma imagem.", preco: "a partir de R$ 400", foto: acha("retrato-bebe") },
+  { titulo: "Gestante", desc: "O tempo da espera, em luz.", preco: "a partir de R$ 700", foto: undefined },
+  { titulo: "Eventos", desc: "Casamentos e celebrações, cobertura completa.", preco: "sob consulta", foto: undefined },
 ];
 
 export default function Services() {
@@ -63,25 +69,33 @@ export default function Services() {
       className="relative overflow-hidden px-6 py-20 md:py-40 md:px-14"
       style={{ borderTop: "1px solid var(--film-line)" }}
     >
-      {/* Foto flutuante — desktop; segue o mouse e troca por dissolve */}
+      {/* Foto flutuante — desktop; segue o mouse e troca por dissolve.
+          Só some por completo quando o serviço em foco não tem foto. */}
       <div
         aria-hidden
         className="pointer-events-none absolute left-0 top-0 z-0 hidden md:block"
-        style={{ opacity: ativo !== null ? 1 : 0, transition: "opacity 0.4s ease" }}
+        style={{
+          opacity: ativo !== null && servicos[ativo]?.foto ? 1 : 0,
+          transition: "opacity 0.4s ease",
+        }}
       >
         <div data-palco className="relative -translate-x-1/2 -translate-y-1/2">
           <div className="halation relative h-[300px] w-[230px] overflow-hidden bg-film-900">
-            {servicos.map((s, i) => (
-              <Image
-                key={s.titulo}
-                src={s.foto.src}
-                alt=""
-                fill
-                sizes="230px"
-                className="object-cover transition-opacity duration-300"
-                style={{ opacity: ativo === i ? 1 : 0 }}
-              />
-            ))}
+            {servicos.map((s, i) =>
+              s.foto ? (
+                <Image
+                  key={s.titulo}
+                  src={s.foto.src}
+                  alt=""
+                  fill
+                  sizes="230px"
+                  placeholder="blur"
+                  blurDataURL={s.foto.blur}
+                  className="object-cover transition-opacity duration-300"
+                  style={{ opacity: ativo === i ? 1 : 0 }}
+                />
+              ) : null,
+            )}
           </div>
         </div>
       </div>
@@ -95,7 +109,7 @@ export default function Services() {
             </h2>
           </div>
           <p className="max-w-xs font-body text-sm leading-relaxed text-film-grey">
-            Quatro modalidades. A mesma exigência em todas.
+            Cinco modalidades. A mesma exigência em todas.
           </p>
         </div>
 
@@ -128,15 +142,21 @@ export default function Services() {
                 </span>
 
                 {/* Foto — só mobile */}
-                <span className="halation relative mt-4 block aspect-[16/10] w-full overflow-hidden bg-film-900 md:hidden">
-                  <Image
-                    src={s.foto.src}
-                    alt={s.foto.alt}
-                    fill
-                    sizes="100vw"
-                    className="object-cover"
-                  />
-                </span>
+                {s.foto && (
+                  <span className="halation relative mt-4 block aspect-[4/5] w-full overflow-hidden bg-film-900 md:hidden">
+                    <Image
+                      src={s.foto.src}
+                      alt={s.foto.alt}
+                      fill
+                      sizes="100vw"
+                      placeholder="blur"
+                      blurDataURL={s.foto.blur}
+                      /* O acervo é quase todo vertical: `top` mantém os
+                         rostos no quadro em vez de cortar as cabeças. */
+                      className="object-cover object-top"
+                    />
+                  </span>
+                )}
 
                 {/* Descrição: aparece no mobile e no desktop largo; some no
                     md, onde a linha fica apertada demais para caber. */}

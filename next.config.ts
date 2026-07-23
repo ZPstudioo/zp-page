@@ -5,12 +5,9 @@ const nextConfig: NextConfig = {
   // elege a pasta do usuário como raiz do workspace.
   turbopack: { root: import.meta.dirname },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-    ],
+    // Todas as fotos são locais (`public/fotos/`) desde a entrega do acervo
+    // real. Sem `remotePatterns`: nenhuma origem externa é permitida.
+    formats: ["image/avif", "image/webp"],
   },
 };
 

@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://zpstudio.com.br"),
   title: "ZP Studio | Fotografia em São Paulo",
   description:
-    "Estúdio de fotografia em São Paulo. Retratos, casais, gestante e eventos — com a luz que cada momento pede. Desde 2016.",
+    "Estúdio de fotografia em São Paulo. Casais, famílias, retratos e eventos — com a luz que cada momento pede. Desde 2016.",
   keywords: [
     "fotografia São Paulo",
     "estúdio de fotografia",
@@ -45,14 +45,14 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     title: "ZP Studio | Fotografia em São Paulo",
     description:
-      "Retratos, casais, gestante e eventos — com a luz que cada momento pede.",
+      "Casais, famílias, retratos e eventos — com a luz que cada momento pede.",
     siteName: "ZP Studio",
     images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "ZP Studio — Fotografia em São Paulo" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "ZP Studio | Fotografia em São Paulo",
-    description: "Retratos, casais, gestante e eventos — com a luz que cada momento pede.",
+    description: "Casais, famílias, retratos e eventos — com a luz que cada momento pede.",
     images: ["/og-image.jpg"],
   },
   robots: { index: true, follow: true },
