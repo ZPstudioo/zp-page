@@ -118,7 +118,7 @@ export default function Portfolio() {
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div data-cab>
             <Eyebrow cena="Cena 04">Galeria</Eyebrow>
-            <h2 className="font-display text-4xl uppercase leading-[0.9] text-film-white sm:text-5xl">
+            <h2 className="font-display text-4xl uppercase leading-[0.9] text-film-white sm:text-5xl sm:leading-[0.9]">
               O rolo revelado
             </h2>
           </div>

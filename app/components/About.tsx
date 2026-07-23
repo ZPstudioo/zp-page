@@ -105,7 +105,7 @@ export default function About() {
           <Eyebrow cena="Cena 02">Direção</Eyebrow>
 
           {/* "É A TÉCNICA." começa com acento: precisa de 1.18 (ver globals.css) */}
-          <h2 className="font-display text-4xl uppercase leading-[1.18] text-film-white sm:text-5xl lg:text-6xl">
+          <h2 className="font-display text-4xl uppercase leading-[1.18] text-film-white sm:text-5xl sm:leading-[1.18] lg:text-6xl lg:leading-[1.18]">
             <span className="mask-line">
               <span data-linha className="block">O olhar</span>
             </span>

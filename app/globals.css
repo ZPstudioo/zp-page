@@ -65,7 +65,13 @@ body {
      • título de UMA linha           → pode apertar até `leading-[0.9]`
      • multi-linha SEM acento        → `leading-[0.92]` é seguro
      • multi-linha COM acento        → mínimo `leading-[1.18]`
-   O padrão 1.15 abaixo é o valor seguro para quem esquecer de declarar. */
+   O padrão 1.15 abaixo é o valor seguro para quem esquecer de declarar.
+
+   ARMADILHA: no Tailwind, `text-4xl` e afins já embutem um `line-height`.
+   Quando o tamanho muda por breakpoint (`lg:text-6xl`), essa regra vem
+   dentro de uma media query e VENCE um `leading-*` sem prefixo. Por isso
+   todo título display declara o leading em CADA breakpoint em que troca
+   de tamanho — senão o leading volta ao padrão do Tailwind no desktop. */
 @layer base {
   .font-display {
     letter-spacing: -0.045em;

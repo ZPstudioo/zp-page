@@ -38,6 +38,27 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       const onLoad = () => ScrollTrigger.refresh();
       window.addEventListener("load", onLoad);
 
+      // Conteúdo que entra DEPOIS também muda a altura — e o ScrollTrigger
+      // guarda as posições de start/end em cache. Sem recalcular, o pin do
+      // Processo dispara no lugar errado: a galeria WebGL monta ao rolar,
+      // cresce a página em ~140px, e o scroll horizontal fica travado no
+      // começo até algo forçar a remedida.
+      // Só refaz quando a ALTURA muda de verdade (largura é resize de
+      // janela, que o ScrollTrigger já trata sozinho) e com um respiro,
+      // para não recalcular a cada quadro durante o mount.
+      const conteudo = document.querySelector("#smooth-content");
+      let alturaConhecida = conteudo?.getBoundingClientRect().height ?? 0;
+      let pendente: number | undefined;
+
+      const observador = new ResizeObserver(() => {
+        const altura = conteudo?.getBoundingClientRect().height ?? 0;
+        if (Math.abs(altura - alturaConhecida) < 1) return;
+        alturaConhecida = altura;
+        window.clearTimeout(pendente);
+        pendente = window.setTimeout(() => ScrollTrigger.refresh(), 220);
+      });
+      if (conteudo) observador.observe(conteudo);
+
       // Com o ScrollSmoother ativo, um `<a href="#id">` comum não rola nada:
       // o smoother é quem passou a controlar a posição real de scroll, e o
       // salto nativo do navegador não sabe conversar com ele. Todo link de
@@ -63,6 +84,8 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       return () => {
         window.removeEventListener("load", onLoad);
         document.removeEventListener("click", onClick);
+        observador.disconnect();
+        window.clearTimeout(pendente);
         mm.revert();
       };
     },

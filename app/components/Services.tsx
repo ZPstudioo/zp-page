@@ -90,7 +90,7 @@ export default function Services() {
         <div className="mb-14 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <Eyebrow cena="Cena 03">Serviços</Eyebrow>
-            <h2 className="font-display text-4xl uppercase leading-[0.9] text-film-white sm:text-5xl">
+            <h2 className="font-display text-4xl uppercase leading-[0.9] text-film-white sm:text-5xl sm:leading-[0.9]">
               O que filmamos
             </h2>
           </div>
@@ -122,7 +122,7 @@ export default function Services() {
                   <span className="w-8 shrink-0 font-hud text-[11px] text-film-grey md:w-10">
                     0{i + 1}
                   </span>
-                  <span className="flex-1 font-display text-4xl uppercase leading-[0.9] text-film-white transition-colors duration-300 md:text-film-grey md:group-hover:text-film-white sm:text-5xl lg:text-7xl">
+                  <span className="flex-1 font-display text-4xl uppercase leading-[0.9] text-film-white transition-colors duration-300 sm:text-5xl sm:leading-[0.9] md:text-film-grey md:group-hover:text-film-white lg:text-7xl lg:leading-[0.9]">
                     {s.titulo}
                   </span>
                 </span>

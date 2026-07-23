@@ -97,7 +97,7 @@ export default function Process() {
           voltar para o fluxo, senão cai em cima do primeiro card. */}
       <div className="relative z-10 px-6 pt-20 md:pointer-events-none md:absolute md:inset-x-0 md:top-0 md:px-14 md:pt-28">
         <Eyebrow cena="Cena 05">Processo</Eyebrow>
-        <h2 className="font-display text-4xl uppercase leading-[0.88] text-film-white sm:text-5xl">
+        <h2 className="font-display text-4xl uppercase leading-[0.88] text-film-white sm:text-5xl sm:leading-[0.88]">
           Do bruto ao corte
         </h2>
       </div>
@@ -121,7 +121,7 @@ export default function Process() {
           >
             <div className="pl-5 md:pl-0">
               <span className="font-hud text-[11px] tracking-hud text-film-grey">{e.n} / 05</span>
-              <h3 className="mt-3 font-display text-4xl uppercase leading-[0.9] text-film-white sm:text-5xl md:mt-4 md:text-7xl">
+              <h3 className="mt-3 font-display text-4xl uppercase leading-[0.9] text-film-white sm:text-5xl sm:leading-[0.9] md:mt-4 md:text-7xl md:leading-[0.9]">
                 {e.titulo}
               </h3>
               <p className="mt-4 max-w-sm font-body text-sm leading-relaxed text-film-grey md:mt-6">

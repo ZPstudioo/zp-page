@@ -42,7 +42,7 @@ export default function Contact() {
           </div>
           <h2
             data-reveal
-            className="font-display text-4xl uppercase leading-[0.94] text-film-white sm:text-5xl lg:text-6xl"
+            className="font-display text-4xl uppercase leading-[0.94] text-film-white sm:text-5xl sm:leading-[0.94] lg:text-6xl lg:leading-[0.94]"
           >
             Marque a<br />primeira cena.
           </h2>
