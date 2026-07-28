@@ -124,6 +124,8 @@ app/
 components/ui/            componentes reaproveitáveis (galeria 3D, globo)
 lib/
   gsap.ts                 registro de plugins + eases + media queries
+                          (+ ScrollSmoother e Flip sob demanda)
+  dispositivo.ts          o aparelho aguenta luxo? (núcleos, RAM, saveData)
   photos.ts               MANIFESTO ÚNICO DE FOTOS
 ```
 
@@ -199,9 +201,28 @@ Plano completo: `cerebroZp\Reformulacao ZP Studio — Direcao CINEMA (GSAP).md`
 - [x] **F4** Galeria WebGL repaginada · dynamic import · filtros com Flip
 - [x] **F5** Processo (scroll horizontal pin) + Depoimentos (dissolve) + CTA (inversão branca) + Créditos
 - [x] **F6** `next/image` nas seções · SEO/OG · framer-motion REMOVIDO · código morto apagado
-- [ ] **Pendente** fotos reais do Drive → `public/fotos/` + trocar `lib/photos.ts`
+- [x] **F7** reconstrução mobile · tipografia com acento · fotos nos serviços · alvos de toque
+- [x] **F8** velocidade · loops perpétuos · ScrollSmoother/Flip sob demanda · trava de aparelho fraco
 
-Reformulação completa. Só falta o acervo real de fotos (Drive privado, ainda não entregue).
+Reformulação completa. Plano do F8 e números medidos:
+`cerebroZp\Performance Mobile — ZP Studio.md`
+
+### Regras de performance que saíram do F8
+
+1. **Todo loop de animação (`rAF`, `gsap.ticker`) precisa de duas travas:**
+   não roda no aparelho/breakpoint onde o elemento nem aparece, e pausa
+   quando sai da tela. Já aconteceu duas vezes de um enfeite invisível
+   animar para sempre no celular.
+2. **Largura de tela não é potência.** O que é caro (WebGL, ScrollSmoother)
+   passa por `aparelhoFraco()` de `lib/dispositivo.ts`, não só por
+   `MQ_DESKTOP`.
+3. **Plugin GSAP usado só em interação carrega sob demanda** (ver `Flip` em
+   `lib/gsap.ts`), aquecido por `IntersectionObserver` para o usuário nunca
+   perceber.
+4. **Medir antes e depois, lado a lado.** O LCP "de 3,5s" do Lighthouse é
+   estimativa do modelo Lantern; com throttling real é 2,07s. E a mesma
+   máquina deu números 2× diferentes em horas diferentes — comparação entre
+   lotes distantes não vale.
 
 ---
 

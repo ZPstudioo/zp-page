@@ -18,11 +18,14 @@ const archivo = Archivo({
   display: "swap",
 });
 
-/* IBM Plex Mono — timecode, dados de lente, numeração. */
+/* IBM Plex Mono — timecode, dados de lente, numeração.
+   Só o peso 400: nenhum elemento `font-hud` do site usa 500, e cada peso é
+   um arquivo a mais disputando o caminho crítico. Sob 4G lento as fontes
+   chegam ~300ms antes do primeiro paint — 10KB aqui são visíveis. */
 const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   variable: "--font-plex-mono",
-  weight: ["400", "500"],
+  weight: "400",
   display: "swap",
 });
 

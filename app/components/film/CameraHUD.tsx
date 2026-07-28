@@ -30,6 +30,11 @@ export default function CameraHUD() {
     const el = tc.current;
     if (!el) return;
 
+    // O HUD é `hidden md:flex`: no celular ele nunca aparece. Sem esta trava
+    // o timecode ficaria rodando para sempre atrás de um elemento invisível,
+    // gastando bateria por nada. Mesma trava que o FilmGrain já faz.
+    const mq = window.matchMedia("(min-width: 768px)");
+
     const inicio = performance.now();
     let raf = 0;
     let ultimo = 0;
@@ -41,8 +46,23 @@ export default function CameraHUD() {
       el.textContent = formatar(t - inicio);
     };
 
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    const parar = () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    const sincronizar = () => {
+      if (mq.matches && !raf) raf = requestAnimationFrame(loop);
+      else if (!mq.matches && raf) parar();
+    };
+
+    sincronizar();
+    mq.addEventListener("change", sincronizar);
+
+    return () => {
+      mq.removeEventListener("change", sincronizar);
+      parar();
+    };
   }, []);
 
   const linha =

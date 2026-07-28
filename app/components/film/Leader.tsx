@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { gsap, useGSAP, ScrollSmoother } from "@/lib/gsap";
+import { gsap, useGSAP, pausarScroll } from "@/lib/gsap";
 import { leaderDeveRodar, marcarLeaderVisto, anunciarLeaderPronto } from "./leader-bus";
 
 /**
@@ -10,12 +10,17 @@ import { leaderDeveRodar, marcarLeaderVisto, anunciarLeaderPronto } from "./lead
  * Não é tela de carregamento com logo girando. É o ritual de projeção:
  * mira, círculo, ponteiro varrendo, 3 · 2 · 1, e o obturador fecha.
  *
- * Dura 1,35s e roda uma vez por aba. Quem pediu menos movimento nunca
- * o vê — vai direto para o site.
+ * Dura 1,2s e roda uma vez por aba. Quem pediu menos movimento — ou está
+ * em rede cara/lenta — nunca o vê: vai direto para o site.
+ *
+ * O orçamento de 1,2s não é estético, é de performance: enquanto o leader
+ * cobre a tela, o elemento LCP da página (o título do Hero) não pode pintar.
+ * Cada 100ms aqui é 100ms de LCP. Três beats de 0,3s + 0,3s de obturador.
  */
 
 const DIGITOS = ["3", "2", "1"];
 const POR_DIGITO = 0.3;
+const OBTURADOR = 0.3;
 
 export default function Leader() {
   const raiz = useRef<HTMLDivElement>(null);
@@ -47,14 +52,16 @@ export default function Leader() {
       // Ninguém rola durante a contagem.
       const overflowAnterior = document.documentElement.style.overflow;
       document.documentElement.style.overflow = "hidden";
-      ScrollSmoother.get()?.paused(true);
+      // O smoother pode ainda estar a caminho (chunk sob demanda). `pausarScroll`
+      // guarda a intenção e ela é aplicada assim que a instância nascer.
+      pausarScroll(true);
 
       const tl = gsap.timeline({
         onComplete: () => {
           document.documentElement.style.overflow = overflowAnterior;
-          ScrollSmoother.get()?.paused(false);
+          pausarScroll(false);
           marcarLeaderVisto();
-          anunciarLeaderPronto();
+          anunciarLeaderPronto(); // idempotente — normalmente já saiu no onStart abaixo
           setSaiu(true);
         },
       });
@@ -82,13 +89,19 @@ export default function Leader() {
       // Obturador: fecha de cima para baixo.
       tl.to(raiz.current, {
         clipPath: "inset(0% 0% 100% 0%)",
-        duration: 0.45,
+        duration: OBTURADOR,
         ease: "shutter",
+        // O palco é liberado quando o obturador COMEÇA a abrir, não quando
+        // termina. Duas razões: a cortina passa a revelar um site já em
+        // movimento (em vez de um quadro congelado que só então acorda), e
+        // o título do Hero — que é o elemento LCP da página — deixa de
+        // esperar mais 0,3s para pintar.
+        onStart: anunciarLeaderPronto,
       });
 
       return () => {
         document.documentElement.style.overflow = overflowAnterior;
-        ScrollSmoother.get()?.paused(false);
+        pausarScroll(false);
       };
     },
     { scope: raiz, dependencies: [ativo] },

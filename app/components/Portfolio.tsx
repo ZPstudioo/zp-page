@@ -3,7 +3,8 @@
 import { useState, useRef, useMemo, useEffect, type RefObject } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { gsap, useGSAP, Flip, MQ_DESKTOP } from "@/lib/gsap";
+import { gsap, useGSAP, carregarFlip, flipPronto, MQ_DESKTOP } from "@/lib/gsap";
+import { aparelhoFraco } from "@/lib/dispositivo";
 import { fotos, categorias, type Categoria, type Foto } from "@/lib/photos";
 import Eyebrow from "./film/Eyebrow";
 
@@ -26,10 +27,12 @@ type Filtro = (typeof filtros)[number];
 /**
  * Decide se a cena 3D deve existir.
  *
- * Duas travas, as duas têm que liberar:
+ * Três travas, as três têm que liberar:
  *   1. `MQ_DESKTOP` — tela grande e sem "reduzir movimento". Celular nunca
  *      passa daqui, então o chunk do three.js nem é baixado.
- *   2. IntersectionObserver — só monta quando a seção está a ~600px de
+ *   2. `aparelhoFraco()` — tela grande não é sinônimo de máquina boa. Um
+ *      notebook de entrada passava na trava 1 e engasgava com o WebGL.
+ *   3. IntersectionObserver — só monta quando a seção está a ~600px de
  *      entrar na tela. Ninguém paga o custo do WebGL por uma seção que
  *      talvez nunca role até ser vista.
  */
@@ -39,7 +42,9 @@ function useGaleria3D(ref: RefObject<HTMLElement | null>) {
 
   useEffect(() => {
     const mq = window.matchMedia(MQ_DESKTOP);
-    const aplicar = () => setDesktop(mq.matches);
+    // A capacidade do aparelho não muda no meio da sessão, mas o tamanho da
+    // janela sim — por isso a checagem fica junto do listener de media query.
+    const aplicar = () => setDesktop(mq.matches && !aparelhoFraco());
     aplicar();
     mq.addEventListener("change", aplicar);
     return () => mq.removeEventListener("change", aplicar);
@@ -80,13 +85,36 @@ export default function Portfolio() {
     [ativo],
   );
 
+  // O Flip é baixado sob demanda; aquece aqui, quando a seção se aproxima,
+  // para já estar pronto quando o dedo alcançar um filtro. Quem nunca rola
+  // até a galeria nunca paga os 25KB do plugin.
+  useEffect(() => {
+    const el = raiz.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entrada]) => {
+        if (!entrada.isIntersecting) return;
+        obs.disconnect();
+        carregarFlip().catch(() => {
+          // Sem Flip os filtros seguem funcionando, só sem o marcador deslizar.
+        });
+      },
+      { rootMargin: "600px 0px" },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   // Flip: ao trocar de filtro, o marcador desliza fisicamente entre as abas.
   const trocar = (f: Filtro) => {
     if (f === ativo) return;
+    // Num clique muito rápido o plugin pode não ter chegado — a troca
+    // acontece igual, só sem a transição do marcador.
+    const Flip = flipPronto();
     const marcador = raiz.current?.querySelector("[data-marcador]");
-    const estado = marcador ? Flip.getState(marcador) : null;
+    const estado = Flip && marcador ? Flip.getState(marcador) : null;
     setAtivo(f);
-    if (marcador && estado) {
+    if (Flip && marcador && estado) {
       requestAnimationFrame(() =>
         Flip.from(estado, { duration: 0.5, ease: "shutter", absolute: true }),
       );

@@ -1,7 +1,17 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { gsap, useGSAP, ScrollSmoother, ScrollTrigger, MQ_DESKTOP } from "@/lib/gsap";
+import {
+  gsap,
+  useGSAP,
+  ScrollTrigger,
+  MQ_DESKTOP,
+  carregarScrollSmoother,
+  definirSmoother,
+  smootherAtivo,
+} from "@/lib/gsap";
+import { aparelhoFraco } from "@/lib/dispositivo";
+import type { ScrollSmoother as TipoSmoother } from "gsap/ScrollSmoother";
 
 /**
  * Envelope do ScrollSmoother.
@@ -22,16 +32,37 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       const mm = gsap.matchMedia();
 
       mm.add(MQ_DESKTOP, () => {
-        const smoother = ScrollSmoother.create({
-          wrapper: "#smooth-wrapper",
-          content: "#smooth-content",
-          smooth: 1.1,          // segundos para "alcançar" o scroll real
-          effects: true,        // habilita data-speed / data-lag nos filhos
-          normalizeScroll: true,
-          ignoreMobileResize: true,
+        // Tela grande não garante máquina boa: o smoother roda um transform
+        // por quadro na página inteira e é justamente onde um notebook de
+        // entrada engasga. Quem não aguenta fica com o scroll nativo, que
+        // nunca trava.
+        if (aparelhoFraco()) return;
+
+        // O plugin chega por `import()`: o celular nunca baixa este chunk.
+        let vivo = true;
+        let instancia: TipoSmoother | null = null;
+
+        carregarScrollSmoother().then((ScrollSmoother) => {
+          // A media query pode ter mudado (ou o componente saído) enquanto o
+          // chunk vinha — sem isto, criaríamos um smoother órfão.
+          if (!vivo) return;
+          const s = ScrollSmoother.create({
+            wrapper: "#smooth-wrapper",
+            content: "#smooth-content",
+            smooth: 1.1,          // segundos para "alcançar" o scroll real
+            effects: true,        // habilita data-speed / data-lag nos filhos
+            normalizeScroll: true,
+            ignoreMobileResize: true,
+          });
+          instancia = s;
+          definirSmoother(s); // aplica sozinho a pausa que o Leader já pediu
         });
 
-        return () => smoother.kill();
+        return () => {
+          vivo = false;
+          instancia?.kill();
+          definirSmoother(null);
+        };
       });
 
       // Fotos que carregam depois mudam a altura da página.
@@ -72,8 +103,10 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
         const secao = document.getElementById(id);
         if (!secao) return;
 
-        const smoother = ScrollSmoother.get();
-        if (!smoother) return; // mobile: sem smoother, o navegador já resolve
+        // Mobile — e a janelinha em que o chunk ainda não chegou — caem no
+        // salto nativo do navegador, que funciona sozinho.
+        const smoother = smootherAtivo();
+        if (!smoother) return;
 
         e.preventDefault();
         smoother.scrollTo(secao, true, "top top");

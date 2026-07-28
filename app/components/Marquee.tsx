@@ -37,18 +37,42 @@ export default function Marquee() {
           pos = gsap.utils.wrap(-largura, 0, pos);
           x(pos);
         };
-        gsap.ticker.add(tick);
+
+        // A faixa fica a oito telas do fim da página. Sem esta trava o ticker
+        // continuaria escrevendo um transform por quadro com a seção muito
+        // fora da tela — custo perpétuo de CPU e bateria por algo que
+        // ninguém está vendo. Só anima enquanto pode ser visto.
+        let rodando = false;
+        const ligar = () => {
+          if (rodando) return;
+          rodando = true;
+          gsap.ticker.add(tick);
+        };
+        const desligar = () => {
+          if (!rodando) return;
+          rodando = false;
+          gsap.ticker.remove(tick);
+        };
+
+        const naTela = new IntersectionObserver(
+          ([entrada]) => (entrada.isIntersecting ? ligar() : desligar()),
+          { rootMargin: "120px 0px" },
+        );
+        if (raiz.current) naTela.observe(raiz.current);
 
         const obs = Observer.create({
           target: window,
           type: "wheel,touch,scroll",
           onChangeY: (self) => {
+            // Parada, a faixa não acumula impulso que ela nunca vai gastar.
+            if (!rodando) return;
             impulso = gsap.utils.clamp(-40, 40, -self.deltaY * 0.35);
           },
         });
 
         return () => {
-          gsap.ticker.remove(tick);
+          naTela.disconnect();
+          desligar();
           obs.kill();
         };
       });

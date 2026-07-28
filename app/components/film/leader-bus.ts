@@ -9,15 +9,25 @@
  * entre a ordem de montagem dos dois componentes.
  */
 
+import { redeApertada } from "@/lib/dispositivo";
+
 const CHAVE = "zp:leader-visto";
 export const EVENTO_LEADER = "zp:leader-pronto";
 
 let pronto = false;
 
-/** O leader só roda uma vez por aba — e nunca para quem pediu menos movimento. */
+/**
+ * O leader é um ritual, não um carregamento — então ele é a primeira coisa
+ * a ser sacrificada quando o acesso está caro ou lento. Não roda:
+ *   · para quem pediu menos movimento;
+ *   · com "economizar dados" ligado ou em rede 2g — 1,2s de contagem antes
+ *     do site é luxo que só faz sentido em conexão que já está de pé;
+ *   · mais de uma vez por aba.
+ */
 export function leaderDeveRodar(): boolean {
   if (typeof window === "undefined") return false;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+  if (redeApertada()) return false;
   return sessionStorage.getItem(CHAVE) !== "1";
 }
 
