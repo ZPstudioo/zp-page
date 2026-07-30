@@ -40,8 +40,12 @@ export default function Navbar() {
         paused: true,
       });
 
+      // `end` explícito: sem ele, o range fica ambíguo e o fundo sólido pode
+      // "desligar" antes do fim da página — foi o que deixava o CTA final
+      // (única seção branca) com texto branco sobre fundo branco.
       const st = ScrollTrigger.create({
         start: "top -80",
+        end: "max",
         onToggle: (self) => (self.isActive ? fundo.play() : fundo.reverse()),
       });
 
