@@ -11,7 +11,7 @@
 import { useRef } from "react";
 import { gsap, useGSAP, Observer, MQ_MOTION } from "@/lib/gsap";
 
-const ITENS = ["Casais", "Retratos", "Gestante", "Eventos", "São Paulo", "ZP Studio", "35mm"];
+const ITENS = ["Casais", "Retratos", "Gestante", "Eventos", "Cacoal", "ZP Studio", "35mm"];
 
 export default function Marquee() {
   const raiz = useRef<HTMLDivElement>(null);

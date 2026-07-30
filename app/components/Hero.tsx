@@ -203,7 +203,7 @@ export default function Hero() {
         style={{ paddingBottom: "calc(var(--letterbox-h, 24px) + 3.25rem)" }}
       >
         <p data-sobe className="mb-5 font-hud text-[10px] uppercase tracking-hud text-film-white/75">
-          São Paulo · Desde 2016
+          Cacoal · Desde 2016
         </p>
 
         <h1

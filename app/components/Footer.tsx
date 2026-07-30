@@ -29,7 +29,7 @@ export default function Footer() {
           <div className="pt-8">
             <p className="mb-4 font-hud text-[9px] uppercase tracking-hud text-film-grey">Direção</p>
             <p className="max-w-xs font-body text-sm leading-relaxed text-film-400">
-              Fotografia de casais, famílias, retratos e eventos. São Paulo, desde 2016.
+              Fotografia de casais, famílias, retratos e eventos. Cacoal, desde 2016.
             </p>
           </div>
 
@@ -78,7 +78,7 @@ export default function Footer() {
           <p className="font-hud text-[10px] uppercase tracking-hud text-film-grey">
             © {new Date().getFullYear()} ZP Studio
           </p>
-          <p className="font-hud text-[10px] uppercase tracking-hud text-film-grey">35mm · São Paulo · Brasil</p>
+          <p className="font-hud text-[10px] uppercase tracking-hud text-film-grey">35mm · Cacoal · Brasil</p>
         </div>
       </div>
     </footer>

@@ -326,7 +326,7 @@ export default function GlobeScrollDemo() {
       title: "Fotografia",
       subtitle: "que conecta mundos",
       description:
-        "De São Paulo para o mundo — nossa lente captura momentos únicos com a sensibilidade e a técnica que cada história merece. Cada clique é uma janela aberta para o universo de quem você é.",
+        "De Rondônia para o mundo — nossa lente captura momentos únicos com a sensibilidade e a técnica que cada história merece. Cada clique é uma janela aberta para o universo de quem você é.",
       align: "left" as const,
       actions: [
         { label: "Ver Portfólio", variant: "primary" as const, onClick: () => (window.location.href = "/#portfolio") },

@@ -53,7 +53,7 @@ export default function Contact() {
 
           <div data-reveal className="mt-8 flex items-center gap-3 font-hud text-[10px] uppercase tracking-hud text-film-grey">
             <MapPin size={13} aria-hidden />
-            São Paulo, SP · Brasil
+            Cacoal, RO · Brasil
           </div>
         </div>
 

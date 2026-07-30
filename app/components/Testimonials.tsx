@@ -28,7 +28,7 @@ export default function Testimonials() {
       ease: "shutter",
       onComplete: () => {
         setI(n);
-        gsap.fromTo(cartao, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "cut" });
+        gsap.fromTo(cartao, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "cut" }); 
       },
     });
   };
