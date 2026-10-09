@@ -5,10 +5,10 @@ import { gsap, useGSAP } from "@/lib/gsap";
 import Eyebrow from "./film/Eyebrow";
 
 const criticas = [
-  { texto: "Não sabia posar e no fim nem percebi a câmera. As fotos são a gente de verdade — não uma versão ensaiada da gente.", nome: "Ana Carolina", papel: "Ensaio de casal" },
-  { texto: "Chorei quando abri a galeria. Cada foto tem a luz certa, o gesto certo. Parece que ele estava vendo o que a gente sentia.", nome: "Mariana Costa", papel: "Gestante" },
-  { texto: "O casamento inteiro está ali, sem clichê, sem foto de banco. Gente olhando e dizendo: isso sim é fotografia.", nome: "Rafael & Júlia", papel: "Casamento" },
-  { texto: "Precisava de um retrato pro trabalho e saí com uma série que finalmente parece comigo. Cuidado em cada detalhe.", nome: "Beatriz Mendonça", papel: "Retrato" },
+  { texto: "Eu tinha vergonha de tirar foto. Em dez minutos já tava rindo e esqueci que tinha câmera ali.", nome: "Ana Carolina", papel: "Ensaio de casal" },
+  { texto: "Fui com duas crianças que não param quietas e achei que ia virar bagunça. Virou o dia mais divertido, e as fotos ficaram lindas.", nome: "Mariana", papel: "Ensaio de família" },
+  { texto: "Entregaram antes do prazo e ficou melhor do que eu esperava. Já mandei pra família inteira.", nome: "Rafael e Júlia", papel: "Ensaio de casal" },
+  { texto: "A foto do meu filho no colo do pai virou quadro na sala. Minha mãe já pediu uma cópia.", nome: "Beatriz", papel: "Ensaio de família" },
 ];
 
 export default function Testimonials() {

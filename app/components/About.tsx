@@ -12,7 +12,7 @@ const retrato = fotos.find((f) => f.src.includes("familia-bebe-no-alto")) ?? fot
 const numeros = [
   { valor: 128400, sufixo: "", label: "frames capturados" },
   { valor: 500, sufixo: "+", label: "ensaios entregues" },
-  { valor: 9, sufixo: "", label: "anos de estrada" },
+  { valor: 2, sufixo: "", label: "anos de estrada" },
 ];
 
 const fmt = (n: number) => n.toLocaleString("pt-BR");

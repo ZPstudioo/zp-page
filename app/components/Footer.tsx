@@ -30,7 +30,7 @@ export default function Footer() {
             <Image src="/logo/zp-marca.png" alt="" aria-hidden width={592} height={350} className="mb-6 h-8 w-auto" />
             <p className="mb-4 font-hud text-[9px] uppercase tracking-hud text-film-grey">Direção</p>
             <p className="max-w-xs font-body text-sm leading-relaxed text-film-400">
-              Fotografia de casais, famílias, retratos e eventos. Cacoal, desde 2016.
+              Fotografia de casais, famílias, retratos e eventos. Cacoal, desde 2024.
             </p>
           </div>
 

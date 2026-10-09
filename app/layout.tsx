@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://zpstudio.com.br"),
   title: "ZP Studio | Fotografia em Cacoal",
   description:
-    "Estúdio de fotografia em Cacoal. Casais, famílias, retratos e eventos — com a luz que cada momento pede. Desde 2016.",
+    "Estúdio de fotografia em Cacoal. Casais, famílias, retratos e eventos — com a luz que cada momento pede. Desde 2024.",
   keywords: [
     "fotografia Cacoal",
     "estúdio de fotografia",
