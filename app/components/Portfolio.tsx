@@ -5,7 +5,8 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { gsap, useGSAP, carregarFlip, flipPronto, MQ_DESKTOP } from "@/lib/gsap";
 import { aparelhoFraco } from "@/lib/dispositivo";
-import { fotos, categorias, type Categoria, type Foto } from "@/lib/photos";
+import { fotos, categorias, srcGaleria, type Categoria, type Foto } from "@/lib/photos";
+import type { ComandoGaleria } from "@/components/ui/3d-gallery-photography";
 import Eyebrow from "./film/Eyebrow";
 
 /* A galeria WebGL é pesada (three.js, ~870KB) — carrega só no cliente,
@@ -20,6 +21,11 @@ const InfiniteGallery = dynamic(() => import("@/components/ui/3d-gallery-photogr
     </div>
   ),
 });
+
+/* A galeria 3D recebe sempre TODAS as fotos (em 1200px) — as texturas
+   carregam uma vez só — e o filtro chega como lista de índices. Trocar de
+   aba não recarrega nada. */
+const imagensGaleria = fotos.map((f) => ({ src: srcGaleria(f), alt: f.alt }));
 
 const filtros = ["Todos", ...categorias] as const;
 type Filtro = (typeof filtros)[number];
@@ -79,9 +85,15 @@ export default function Portfolio() {
   const raiz = useRef<HTMLElement>(null);
   const [ativo, setAtivo] = useState<Filtro>("Todos");
   const usar3D = useGaleria3D(raiz);
+  const comando = useRef<ComandoGaleria | null>(null);
 
   const imagens = useMemo(
     () => (ativo === "Todos" ? fotos : fotos.filter((f) => f.categoria === (ativo as Categoria))),
+    [ativo],
+  );
+
+  const ativas = useMemo(
+    () => (ativo === "Todos" ? undefined : fotos.flatMap((f, i) => (f.categoria === ativo ? [i] : []))),
     [ativo],
   );
 
@@ -182,7 +194,9 @@ export default function Portfolio() {
         /* ── Desktop: o palco WebGL ─────────────────────────────── */
         <div className="relative w-full" style={{ height: "82vh" }}>
           <InfiniteGallery
-            images={imagens}
+            images={imagensGaleria}
+            ativas={ativas}
+            controle={comando}
             speed={1.0}
             visibleCount={8}
             className="h-full w-full"
@@ -208,8 +222,22 @@ export default function Portfolio() {
             </p>
           </div>
 
+          {/* Setas na tela: sem elas, só quem usa teclado descobria a navegação.
+              Ficam depois da vinheta no DOM para não serem escurecidas por ela. */}
+          {([-1, 1] as const).map((dir) => (
+            <button
+              key={dir}
+              type="button"
+              onClick={() => comando.current?.(dir)}
+              aria-label={dir < 0 ? "Foto anterior" : "Próxima foto"}
+              className={`absolute top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-film-white/20 font-hud text-sm text-film-400 transition-colors duration-300 hover:border-film-white/60 hover:text-film-white ${dir < 0 ? "left-6 md:left-14" : "right-6 md:right-14"}`}
+            >
+              {dir < 0 ? "←" : "→"}
+            </button>
+          ))}
+
           <p className="pointer-events-none absolute inset-x-0 bottom-4 text-center font-hud text-[9px] uppercase tracking-hud text-film-grey">
-            ← → setas ou role para navegar
+            ← → para navegar
           </p>
         </div>
       ) : (

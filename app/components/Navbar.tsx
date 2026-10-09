@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
 import { aoLiberarPalco } from "./film/leader-bus";
 
@@ -130,9 +131,7 @@ export default function Navbar() {
 
       <nav className="relative flex items-center justify-between px-6 py-4 md:px-14">
         <a href="#hero" className="flex min-h-[44px] items-center gap-2.5" aria-label="ZP Studio, início">
-          <span className="font-display text-base uppercase tracking-[0.14em] text-film-white">
-            ZP Studio
-          </span>
+          <Image src="/logo/zp-marca.png" alt="ZP Studio" width={592} height={350} priority className="h-6 w-auto md:h-7" />
           <span className="hidden font-hud text-[9px] uppercase tracking-hud text-film-grey sm:block">
             35mm
           </span>

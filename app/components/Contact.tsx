@@ -6,8 +6,8 @@ import { MapPin, Mail, Instagram } from "lucide-react";
 import Eyebrow from "./film/Eyebrow";
 
 const canais = [
-  { href: "https://wa.me/5511999999999", label: "WhatsApp", sub: "(11) 99999-9999" },
-  { href: "mailto:contato@zpstudio.com.br", label: "E-mail", sub: "contato@zpstudio.com.br" },
+  { href: "https://wa.me/5569992527366", label: "WhatsApp", sub: "(69) 99252-7366" },
+  { href: "mailto:zp.studio10@gmail.com", label: "E-mail", sub: "zp.studio10@gmail.com" },
   { href: "https://instagram.com/zp.studio_oficial", label: "Instagram", sub: "@zp.studio_oficial" },
 ];
 

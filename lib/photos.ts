@@ -270,6 +270,16 @@ export const categorias: Categoria[] = ["Casais", "Família"];
 
 export const porCategoria = (c: Categoria) => fotos.filter((f) => f.categoria === c);
 
+/**
+ * Versão de 1200px da foto, só para a galeria WebGL.
+ *
+ * Textura não passa pelo `next/image`: sobe inteira para a GPU. Em 2400px
+ * eram ~18 MB de memória de vídeo por foto (~440 MB no total) e um engasgo
+ * a cada primeira aparição. Na tela um plano nunca passa de ~900px.
+ * Gerada a partir do original, com o mesmo nome, em `public/fotos/galeria/`.
+ */
+export const srcGaleria = (f: Foto) => f.src.replace("/fotos/", "/fotos/galeria/");
+
 /** Primeiro frame do filme — a foto do Hero. */
 export const heroFoto = fotos[0];
 

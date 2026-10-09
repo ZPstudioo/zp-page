@@ -86,7 +86,7 @@ export default function CTAFinal() {
             Agendar ensaio
           </a>
           <a
-            href="https://wa.me/5511999999999"
+            href="https://wa.me/5569992527366"
             target="_blank"
             rel="noopener noreferrer"
             className="border border-film-black/30 px-10 py-4 font-hud text-[11px] uppercase tracking-hud text-film-black transition-colors duration-300 hover:bg-film-black hover:text-film-white"

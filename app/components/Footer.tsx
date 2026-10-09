@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { Instagram, Mail } from "lucide-react";
+import CartelaFinal from "./CartelaFinal";
 
 /**
  * Créditos finais. O site fecha como um filme fecha: nome grande, blocos
@@ -18,15 +20,14 @@ export default function Footer() {
     <footer className="bg-film-black" style={{ borderTop: "1px solid var(--film-line)" }}>
       {/* Nome enorme, como cartela final */}
       <div className="overflow-hidden px-6 pt-20 md:px-14">
-        <p className="font-display uppercase leading-[0.82] text-film-800" style={{ fontSize: "clamp(4rem, 20vw, 18rem)" }}>
-          ZP Studio
-        </p>
+        <CartelaFinal />
       </div>
 
       <div className="mx-auto max-w-7xl px-6 pb-14 md:px-14">
         <div className="grid gap-10 py-12 sm:grid-cols-2 md:grid-cols-4" style={{ borderTop: "1px solid var(--film-line)" }}>
           {/* Direção */}
           <div className="pt-8">
+            <Image src="/logo/zp-marca.png" alt="" aria-hidden width={592} height={350} className="mb-6 h-8 w-auto" />
             <p className="mb-4 font-hud text-[9px] uppercase tracking-hud text-film-grey">Direção</p>
             <p className="max-w-xs font-body text-sm leading-relaxed text-film-400">
               Fotografia de casais, famílias, retratos e eventos. Cacoal, desde 2016.
@@ -54,8 +55,8 @@ export default function Footer() {
           <div className="pt-8">
             <p className="mb-4 font-hud text-[9px] uppercase tracking-hud text-film-grey">Contato</p>
             <div className="flex flex-col font-body text-sm text-film-400">
-              <a href="tel:+5511999999999" className="flex min-h-[44px] items-center transition-colors duration-300 hover:text-film-white">(11) 99999-9999</a>
-              <a href="mailto:contato@zpstudio.com.br" className="flex min-h-[44px] items-center break-all transition-colors duration-300 hover:text-film-white">contato@zpstudio.com.br</a>
+              <a href="tel:+5569992527366" className="flex min-h-[44px] items-center transition-colors duration-300 hover:text-film-white">(69) 99252-7366</a>
+              <a href="mailto:zp.studio10@gmail.com" className="flex min-h-[44px] items-center break-all transition-colors duration-300 hover:text-film-white">zp.studio10@gmail.com</a>
               <span className="mt-2 font-hud text-[10px] uppercase tracking-hud text-film-grey">Seg–Sex · 9h–18h</span>
             </div>
           </div>
@@ -67,7 +68,7 @@ export default function Footer() {
               <a href="https://instagram.com/zp.studio_oficial" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex h-11 w-11 items-center justify-center text-film-grey transition-colors duration-300 hover:text-film-white">
                 <Instagram size={18} />
               </a>
-              <a href="mailto:contato@zpstudio.com.br" aria-label="E-mail" className="flex h-11 w-11 items-center justify-center text-film-grey transition-colors duration-300 hover:text-film-white">
+              <a href="mailto:zp.studio10@gmail.com" aria-label="E-mail" className="flex h-11 w-11 items-center justify-center text-film-grey transition-colors duration-300 hover:text-film-white">
                 <Mail size={18} />
               </a>
             </div>

@@ -1,12 +1,15 @@
 "use client";
 
 import type React from "react";
-import { useRef, useMemo, useCallback, useState, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { useTexture } from "@react-three/drei";
+import { useRef, useMemo, useState, useEffect, type MutableRefObject } from "react";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { gsap } from "@/lib/gsap";
 
 type ImageItem = string | { src: string; alt?: string };
+
+/** Avança (+1) ou volta (-1) exatamente uma foto. */
+export type ComandoGaleria = (dir: 1 | -1) => void;
 
 interface FadeSettings {
   fadeIn: { start: number; end: number };
@@ -20,28 +23,27 @@ interface BlurSettings {
 }
 
 interface InfiniteGalleryProps {
+  /** Todas as fotos. Lista estável: as texturas carregam uma vez só. */
   images: ImageItem[];
+  /** Índices de `images` que o túnel percorre (o filtro). Padrão: todas. */
+  ativas?: number[];
+  /** Recebe a função de passo — para botões de seta fora do canvas. */
+  controle?: MutableRefObject<ComandoGaleria | null>;
   speed?: number;
-  zSpacing?: number;
   visibleCount?: number;
-  falloff?: { near: number; far: number };
   fadeSettings?: FadeSettings;
   blurSettings?: BlurSettings;
   className?: string;
   style?: React.CSSProperties;
 }
 
-interface PlaneData {
-  index: number;
-  z: number;
-  imageIndex: number;
-  x: number;
-  y: number;
-}
-
-const DEFAULT_DEPTH_RANGE = 50;
+const DEPTH_RANGE = 50;
 const MAX_HORIZONTAL_OFFSET = 8;
 const MAX_VERTICAL_OFFSET = 8;
+/** Deriva do autoplay, em unidades de profundidade por segundo. */
+const AUTO_VEL = 1;
+/** Sem interação por este tempo, o autoplay volta (com rampa). */
+const AUTO_RETORNO_MS = 3000;
 
 const createClothMaterial = () => {
   return new THREE.ShaderMaterial({
@@ -84,6 +86,9 @@ const createClothMaterial = () => {
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
     `,
+    /* Blur em 3×3 (9 leituras por pixel, eram 25). O passo dobra para manter
+       o mesmo raio — e com a textura de 1200px, um texel já é o dobro do de
+       2400px, então o `maxBlur` da galeria não precisa mudar. */
     fragmentShader: `
       uniform sampler2D map;
       uniform float opacity;
@@ -98,8 +103,8 @@ const createClothMaterial = () => {
           vec2 texelSize = 1.0 / vec2(textureSize(map, 0));
           vec4 blurred = vec4(0.0);
           float total = 0.0;
-          for (float x = -2.0; x <= 2.0; x += 1.0) {
-            for (float y = -2.0; y <= 2.0; y += 1.0) {
+          for (float x = -1.0; x <= 1.0; x += 1.0) {
+            for (float y = -1.0; y <= 1.0; y += 1.0) {
               vec2 offset = vec2(x, y) * texelSize * blurAmount;
               float weight = 1.0 / (1.0 + length(vec2(x, y)));
               blurred += texture2D(map, vUv + offset) * weight;
@@ -116,48 +121,27 @@ const createClothMaterial = () => {
   });
 };
 
-function ImagePlane({
-  texture,
-  position,
-  scale,
-  material,
-}: {
-  texture: THREE.Texture;
-  position: [number, number, number];
-  scale: [number, number, number];
-  material: THREE.ShaderMaterial;
-}) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const [isHovered, setIsHovered] = useState(false);
+/** 0→1 dentro da faixa [start, end]; 0 antes, 1 depois. */
+const faixa = (p: number, start: number, end: number) =>
+  p <= start ? 0 : p >= end ? 1 : (p - start) / (end - start);
 
-  useEffect(() => {
-    if (material && texture) {
-      material.uniforms.map.value = texture;
-    }
-  }, [material, texture]);
-
-  useEffect(() => {
-    if (material && material.uniforms) {
-      material.uniforms.isHovered.value = isHovered ? 1.0 : 0.0;
-    }
-  }, [material, isHovered]);
-
-  return (
-    <mesh
-      ref={meshRef}
-      position={position}
-      scale={scale}
-      material={material}
-      onPointerEnter={() => setIsHovered(true)}
-      onPointerLeave={() => setIsHovered(false)}
-    >
-      <planeGeometry args={[1, 1, 32, 32]} />
-    </mesh>
-  );
-}
-
+/**
+ * O túnel de fotos.
+ *
+ * Nada aqui passa pelo estado do React depois da montagem: os 8 planos são
+ * criados uma vez e, a cada frame, posição, escala, textura e uniforms são
+ * escritos direto nos objetos do three. (Antes havia `setState` dentro do
+ * `useFrame` — a cena inteira re-renderizava a 60fps, lendo a velocidade de
+ * um frame atrás. Era a trava.)
+ *
+ * O movimento é um número só, `desloc` = deriva do autoplay + passo das
+ * setas. A posição e a foto de cada plano saem dele por conta — nada
+ * acumula, então nenhum salto de velocidade consegue embaralhar as fotos.
+ */
 function GalleryScene({
   images,
+  ativas,
+  controle,
   speed = 1,
   visibleCount = 8,
   fadeSettings = {
@@ -169,246 +153,245 @@ function GalleryScene({
     blurOut: { start: 0.9, end: 1.0 },
     maxBlur: 3.0,
   },
-}: Omit<InfiniteGalleryProps, "className" | "style">) {
-  const [scrollVelocity, setScrollVelocity] = useState(0);
-  const [autoPlay, setAutoPlay] = useState(true);
-  const lastInteraction = useRef(Date.now());
+}: Omit<InfiniteGalleryProps, "className" | "style" | "controle"> & {
+  controle: MutableRefObject<ComandoGaleria | null>;
+}) {
+  const gl = useThree((s) => s.gl);
 
-  const normalizedImages = useMemo(
+  const srcs = useMemo(
+    () => images.map((img) => (typeof img === "string" ? img : img.src)),
+    [images],
+  );
+  /* ImageBitmapLoader: a decodificação do WebP acontece fora da thread
+     principal (`createImageBitmap`). Com o TextureLoader comum ela caía no
+     primeiro frame de cada foto — parte do engasgo. O bitmap já vem
+     invertido (`flipY`), por isso a textura sai com `flipY = false`. */
+  const bitmaps = useLoader(THREE.ImageBitmapLoader, srcs, (loader) => {
+    (loader as THREE.ImageBitmapLoader).setOptions({ imageOrientation: "flipY" });
+  }) as ImageBitmap[];
+
+  const textures = useMemo(
     () =>
-      images.map((img) =>
-        typeof img === "string" ? { src: img, alt: "" } : img
-      ),
-    [images]
+      bitmaps.map((b) => {
+        const t = new THREE.Texture(b);
+        t.flipY = false;
+        t.needsUpdate = true;
+        return t;
+      }),
+    [bitmaps],
+  );
+  useEffect(
+    () => () => {
+      textures.forEach((t) => t.dispose());
+    },
+    [textures],
   );
 
-  const textures = useTexture(normalizedImages.map((img) => img.src));
+  /* Subida para a GPU: UMA textura por frame, a partir do momento em que a
+     cena liga (um pouco antes da seção aparecer). Subir as 23 de uma vez
+     travava um frame por mais de 1s com a CPU limitada; esperar o primeiro
+     frame de cada foto espalhava engasgos pela animação. */
+  const filaGpu = useRef<THREE.Texture[]>([]);
+  useEffect(() => {
+    filaGpu.current = [...textures];
+  }, [textures]);
+
+  const aspectos = useMemo(
+    () =>
+      textures.map((t) => {
+        const img = t.image as ImageBitmap | null;
+        return img?.width && img?.height ? img.width / img.height : 1;
+      }),
+    [textures],
+  );
+
+  const lista = useMemo(() => ativas ?? images.map((_, i) => i), [ativas, images]);
 
   const materials = useMemo(
     () => Array.from({ length: visibleCount }, () => createClothMaterial()),
-    [visibleCount]
+    [visibleCount],
   );
+  const geometria = useMemo(() => new THREE.PlaneGeometry(1, 1, 32, 32), []);
+  useEffect(
+    () => () => {
+      materials.forEach((m) => m.dispose());
+    },
+    [materials],
+  );
+  useEffect(() => () => geometria.dispose(), [geometria]);
 
-  const spatialPositions = useMemo(() => {
-    const positions: { x: number; y: number }[] = [];
+  const meshes = useRef<(THREE.Mesh | null)[]>([]);
+
+  const posicoes = useMemo(() => {
+    const out: { x: number; y: number }[] = [];
     for (let i = 0; i < visibleCount; i++) {
       const horizontalAngle = (i * 2.618) % (Math.PI * 2);
       const verticalAngle = (i * 1.618 + Math.PI / 3) % (Math.PI * 2);
       const horizontalRadius = (i % 3) * 1.2;
       const verticalRadius = ((i + 1) % 4) * 0.8;
-      const x =
-        (Math.sin(horizontalAngle) * horizontalRadius * MAX_HORIZONTAL_OFFSET) / 3;
-      const y =
-        (Math.cos(verticalAngle) * verticalRadius * MAX_VERTICAL_OFFSET) / 4;
-      positions.push({ x, y });
+      out.push({
+        x: (Math.sin(horizontalAngle) * horizontalRadius * MAX_HORIZONTAL_OFFSET) / 3,
+        y: (Math.cos(verticalAngle) * verticalRadius * MAX_VERTICAL_OFFSET) / 4,
+      });
     }
-    return positions;
+    return out;
   }, [visibleCount]);
 
-  const totalImages = normalizedImages.length;
-  const depthRange = DEFAULT_DEPTH_RANGE;
+  /** Distância entre dois planos — "uma foto" de passo. */
+  const passo = DEPTH_RANGE / visibleCount;
 
-  const planesData = useRef<PlaneData[]>(
-    Array.from({ length: visibleCount }, (_, i) => ({
-      index: i,
-      z: visibleCount > 0 ? ((depthRange / visibleCount) * i) % depthRange : 0,
-      imageIndex: totalImages > 0 ? i % totalImages : 0,
-      x: spatialPositions[i]?.x ?? 0,
-      y: spatialPositions[i]?.y ?? 0,
-    }))
-  );
-
-  useEffect(() => {
-    planesData.current = Array.from({ length: visibleCount }, (_, i) => ({
-      index: i,
-      z:
-        visibleCount > 0
-          ? ((depthRange / Math.max(visibleCount, 1)) * i) % depthRange
-          : 0,
-      imageIndex: totalImages > 0 ? i % totalImages : 0,
-      x: spatialPositions[i]?.x ?? 0,
-      y: spatialPositions[i]?.y ?? 0,
-    }));
-  }, [depthRange, spatialPositions, totalImages, visibleCount]);
-
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
-        setScrollVelocity((prev) => prev - 2 * speed);
-        setAutoPlay(false);
-        lastInteraction.current = Date.now();
-      } else if (event.key === "ArrowDown" || event.key === "ArrowRight") {
-        setScrollVelocity((prev) => prev + 2 * speed);
-        setAutoPlay(false);
-        lastInteraction.current = Date.now();
-      }
-    },
-    [speed]
-  );
-
-  useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [handleKeyDown]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (Date.now() - lastInteraction.current > 3000) {
-        setAutoPlay(true);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useFrame((state, delta) => {
-    if (autoPlay) {
-      setScrollVelocity((prev) => prev + 0.3 * delta);
-    }
-    setScrollVelocity((prev) => prev * 0.95);
-
-    const time = state.clock.getElapsedTime();
-    materials.forEach((material) => {
-      if (material && material.uniforms) {
-        material.uniforms.time.value = time;
-        material.uniforms.scrollForce.value = scrollVelocity;
-      }
-    });
-
-    const imageAdvance =
-      totalImages > 0 ? visibleCount % totalImages || totalImages : 0;
-    const totalRange = depthRange;
-    const halfRange = totalRange / 2;
-
-    planesData.current.forEach((plane, i) => {
-      let newZ = plane.z + scrollVelocity * delta * 10;
-      let wrapsForward = 0;
-      let wrapsBackward = 0;
-
-      if (newZ >= totalRange) {
-        wrapsForward = Math.floor(newZ / totalRange);
-        newZ -= totalRange * wrapsForward;
-      } else if (newZ < 0) {
-        wrapsBackward = Math.ceil(-newZ / totalRange);
-        newZ += totalRange * wrapsBackward;
-      }
-
-      if (wrapsForward > 0 && imageAdvance > 0 && totalImages > 0) {
-        plane.imageIndex =
-          (plane.imageIndex + wrapsForward * imageAdvance) % totalImages;
-      }
-      if (wrapsBackward > 0 && imageAdvance > 0 && totalImages > 0) {
-        const step = plane.imageIndex - wrapsBackward * imageAdvance;
-        plane.imageIndex = ((step % totalImages) + totalImages) % totalImages;
-      }
-
-      plane.z = ((newZ % totalRange) + totalRange) % totalRange;
-      plane.x = spatialPositions[i]?.x ?? 0;
-      plane.y = spatialPositions[i]?.y ?? 0;
-
-      const normalizedPosition = plane.z / totalRange;
-      let opacity = 1;
-
-      if (
-        normalizedPosition >= fadeSettings.fadeIn.start &&
-        normalizedPosition <= fadeSettings.fadeIn.end
-      ) {
-        const fadeInProgress =
-          (normalizedPosition - fadeSettings.fadeIn.start) /
-          (fadeSettings.fadeIn.end - fadeSettings.fadeIn.start);
-        opacity = fadeInProgress;
-      } else if (normalizedPosition < fadeSettings.fadeIn.start) {
-        opacity = 0;
-      } else if (
-        normalizedPosition >= fadeSettings.fadeOut.start &&
-        normalizedPosition <= fadeSettings.fadeOut.end
-      ) {
-        const fadeOutProgress =
-          (normalizedPosition - fadeSettings.fadeOut.start) /
-          (fadeSettings.fadeOut.end - fadeSettings.fadeOut.start);
-        opacity = 1 - fadeOutProgress;
-      } else if (normalizedPosition > fadeSettings.fadeOut.end) {
-        opacity = 0;
-      }
-      opacity = Math.max(0, Math.min(1, opacity));
-
-      let blur = 0;
-      if (
-        normalizedPosition >= blurSettings.blurIn.start &&
-        normalizedPosition <= blurSettings.blurIn.end
-      ) {
-        const blurInProgress =
-          (normalizedPosition - blurSettings.blurIn.start) /
-          (blurSettings.blurIn.end - blurSettings.blurIn.start);
-        blur = blurSettings.maxBlur * (1 - blurInProgress);
-      } else if (normalizedPosition < blurSettings.blurIn.start) {
-        blur = blurSettings.maxBlur;
-      } else if (
-        normalizedPosition >= blurSettings.blurOut.start &&
-        normalizedPosition <= blurSettings.blurOut.end
-      ) {
-        const blurOutProgress =
-          (normalizedPosition - blurSettings.blurOut.start) /
-          (blurSettings.blurOut.end - blurSettings.blurOut.start);
-        blur = blurSettings.maxBlur * blurOutProgress;
-      } else if (normalizedPosition > blurSettings.blurOut.end) {
-        blur = blurSettings.maxBlur;
-      }
-      blur = Math.max(0, Math.min(blurSettings.maxBlur, blur));
-
-      const material = materials[i];
-      if (material && material.uniforms) {
-        material.uniforms.opacity.value = opacity;
-        material.uniforms.blurAmount.value = blur;
-      }
-
-      // suppress unused warning
-      void halfRange;
-    });
+  const estado = useRef({
+    deriva: 0,
+    seta: { v: 0 },
+    alvo: 0,
+    ultimoToque: -Infinity,
+    auto: 1,
+    anterior: 0,
+    forca: 0,
+    lista,
+    troca: { o: 1 },
   });
 
-  if (normalizedImages.length === 0) return null;
+  /* ── Seta = um quadro ─────────────────────────────────────────
+     Cada toque avança exatamente `passo`. Toques durante o deslize
+     encadeiam (até 2 fotos à frente do que está na tela) em vez de
+     somar velocidade — por isso segurar a seta não dispara mais. */
+  useEffect(() => {
+    const e = estado.current;
+    controle.current = (dir) => {
+      e.ultimoToque = performance.now();
+      const emCurso = gsap.isTweening(e.seta);
+      e.alvo = gsap.utils.clamp(e.seta.v - 2 * passo, e.seta.v + 2 * passo, e.alvo + dir * passo);
+      gsap.to(e.seta, {
+        v: e.alvo,
+        duration: 0.8,
+        // Parado: movimento de câmera, `dolly`. Já deslizando: `cut`, que sai
+        // na velocidade máxima — reiniciar um ease-in no meio daria um tranco.
+        ease: emCurso ? "cut" : "dolly",
+        overwrite: true,
+      });
+    };
+    return () => {
+      controle.current = null;
+      gsap.killTweensOf(e.seta);
+    };
+  }, [controle, passo]);
+
+  /* ── Filtro: dissolve curto, a lista troca no escuro ─────────── */
+  useEffect(() => {
+    const e = estado.current;
+    if (e.lista === lista) return;
+    const tl = gsap
+      .timeline()
+      .to(e.troca, { o: 0, duration: 0.25, ease: "shutter" })
+      .add(() => {
+        e.lista = lista;
+      })
+      .to(e.troca, { o: 1, duration: 0.4, ease: "cut" });
+    return () => {
+      tl.kill();
+      e.lista = lista;
+      e.troca.o = 1;
+    };
+  }, [lista]);
+
+  useFrame((state, delta) => {
+    // Voltando de aba oculta ou de fora da tela, o delta chega enorme.
+    const dt = Math.min(delta, 0.05);
+    const e = estado.current;
+
+    const proxima = filaGpu.current.shift();
+    if (proxima) gl.initTexture(proxima);
+
+    // Autoplay: some no toque, volta com rampa 3s depois.
+    const querAuto = performance.now() - e.ultimoToque > AUTO_RETORNO_MS ? 1 : 0;
+    e.auto += (querAuto - e.auto) * Math.min(1, dt * 2);
+    e.deriva += AUTO_VEL * speed * e.auto * dt;
+
+    const desloc = e.deriva + e.seta.v;
+    const vel = (desloc - e.anterior) / Math.max(dt, 1e-4);
+    e.anterior = desloc;
+    // A curvatura do "tecido" acompanha a velocidade, com teto.
+    e.forca += (gsap.utils.clamp(-2, 2, vel / 10) - e.forca) * Math.min(1, dt * 8);
+
+    const time = state.clock.elapsedTime;
+    const ids = e.lista;
+    const n = ids.length;
+
+    for (let i = 0; i < visibleCount; i++) {
+      const mesh = meshes.current[i];
+      const mat = materials[i];
+      if (!mesh || !mat) continue;
+
+      const bruto = passo * i + desloc;
+      const volta = Math.floor(bruto / DEPTH_RANGE);
+      const z = bruto - volta * DEPTH_RANGE;
+      const slot = i + volta * visibleCount;
+      const idx = n ? ids[((slot % n) + n) % n] : -1;
+      const tex = idx >= 0 ? textures[idx] : undefined;
+      if (!tex) {
+        mesh.visible = false;
+        continue;
+      }
+
+      const p = z / DEPTH_RANGE;
+      const opacity =
+        faixa(p, fadeSettings.fadeIn.start, fadeSettings.fadeIn.end) *
+        (1 - faixa(p, fadeSettings.fadeOut.start, fadeSettings.fadeOut.end)) *
+        e.troca.o;
+      const blur =
+        blurSettings.maxBlur *
+        Math.max(
+          1 - faixa(p, blurSettings.blurIn.start, blurSettings.blurIn.end),
+          faixa(p, blurSettings.blurOut.start, blurSettings.blurOut.end),
+        );
+
+      mesh.visible = opacity > 0.001;
+      if (!mesh.visible) continue;
+
+      // A troca de foto acontece no mesmo frame em que o plano dá a volta.
+      if (mat.uniforms.map.value !== tex) mat.uniforms.map.value = tex;
+      const a = aspectos[idx];
+      mesh.scale.set(a > 1 ? 2 * a : 2, a > 1 ? 2 : 2 / a, 1);
+      mesh.position.set(posicoes[i].x, posicoes[i].y, z - DEPTH_RANGE / 2);
+
+      mat.uniforms.opacity.value = opacity;
+      mat.uniforms.blurAmount.value = blur;
+      mat.uniforms.time.value = time;
+      mat.uniforms.scrollForce.value = e.forca;
+    }
+  });
+
+  if (images.length === 0) return null;
 
   return (
     <>
-      {planesData.current.map((plane, i) => {
-        const texture = textures[plane.imageIndex];
-        const material = materials[i];
-        if (!texture || !material) return null;
-        const worldZ = plane.z - depthRange / 2;
-        const img = texture.image as { width?: number; height?: number } | null;
-        const aspect =
-          img && img.width && img.height ? img.width / img.height : 1;
-        const scale: [number, number, number] =
-          aspect > 1 ? [2 * aspect, 2, 1] : [2, 2 / aspect, 1];
-        return (
-          <ImagePlane
-            key={plane.index}
-            texture={texture}
-            position={[plane.x, plane.y, worldZ]}
-            scale={scale}
-            material={material}
-          />
-        );
-      })}
+      {materials.map((material, i) => (
+        <mesh
+          key={i}
+          ref={(el) => {
+            meshes.current[i] = el;
+          }}
+          visible={false}
+          geometry={geometria}
+          material={material}
+          onPointerEnter={() => {
+            material.uniforms.isHovered.value = 1;
+          }}
+          onPointerLeave={() => {
+            material.uniforms.isHovered.value = 0;
+          }}
+        />
+      ))}
     </>
   );
 }
 
-function FallbackGallery({ images }: { images: ImageItem[] }) {
-  const normalizedImages = useMemo(
-    () =>
-      images.map((img) =>
-        typeof img === "string" ? { src: img, alt: "" } : img
-      ),
-    [images]
-  );
-
+function FallbackGallery({ images }: { images: { src: string; alt: string }[] }) {
   return (
     <div className="h-full overflow-y-auto bg-film-black p-6">
       <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-        {normalizedImages.map((img, i) => (
+        {images.map((img, i) => (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             key={i}
@@ -425,6 +408,8 @@ function FallbackGallery({ images }: { images: ImageItem[] }) {
 
 export default function InfiniteGallery({
   images,
+  ativas,
+  controle,
   className = "h-96 w-full",
   style,
   fadeSettings = {
@@ -439,6 +424,15 @@ export default function InfiniteGallery({
   ...rest
 }: InfiniteGalleryProps) {
   const [webglSupported, setWebglSupported] = useState(true);
+  const raiz = useRef<HTMLDivElement>(null);
+  const controleInterno = useRef<ComandoGaleria | null>(null);
+  const comando = controle ?? controleInterno;
+
+  /* Trava 2 do F8: fora da tela o loop para (`frameloop="never"`) e as
+     setas voltam a ser só do navegador. O `setState` aqui roda na entrada
+     e na saída da seção — nunca por frame. */
+  const [naTela, setNaTela] = useState(false);
+  const naTelaRef = useRef(false);
 
   useEffect(() => {
     try {
@@ -451,22 +445,68 @@ export default function InfiniteGallery({
     }
   }, []);
 
+  useEffect(() => {
+    const el = raiz.current;
+    if (!el) return;
+    // O loop liga ~400px antes, para as texturas irem subindo à GPU antes
+    // da primeira foto aparecer…
+    const loop = new IntersectionObserver(([e]) => setNaTela(e.isIntersecting), {
+      rootMargin: "400px 0px",
+    });
+    // …mas as setas só valem com a galeria de fato na tela.
+    const teclas = new IntersectionObserver(([e]) => {
+      naTelaRef.current = e.isIntersecting;
+    });
+    loop.observe(el);
+    teclas.observe(el);
+    return () => {
+      loop.disconnect();
+      teclas.disconnect();
+    };
+  }, []);
+
+  // Só ← e →, e só com a galeria visível. ↑ ↓ continuam rolando a página.
+  useEffect(() => {
+    const aoTeclar = (ev: KeyboardEvent) => {
+      if (!naTelaRef.current || ev.defaultPrevented) return;
+      if (ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey) return;
+      const alvo = ev.target as HTMLElement | null;
+      if (alvo?.closest("input, textarea, select, [contenteditable='true']")) return;
+      const dir = ev.key === "ArrowRight" ? 1 : ev.key === "ArrowLeft" ? -1 : 0;
+      if (!dir) return;
+      ev.preventDefault();
+      comando.current?.(dir);
+    };
+    document.addEventListener("keydown", aoTeclar);
+    return () => document.removeEventListener("keydown", aoTeclar);
+  }, [comando]);
+
+  const filtradas = useMemo(() => {
+    const todas = images.map((img) =>
+      typeof img === "string" ? { src: img, alt: "" } : { src: img.src, alt: img.alt ?? "" },
+    );
+    return ativas ? ativas.map((i) => todas[i]) : todas;
+  }, [images, ativas]);
+
   if (!webglSupported) {
     return (
       <div className={className} style={style}>
-        <FallbackGallery images={images} />
+        <FallbackGallery images={filtradas} />
       </div>
     );
   }
 
   return (
-    <div className={className} style={style}>
+    <div ref={raiz} className={className} style={style}>
       <Canvas
+        frameloop={naTela ? "always" : "never"}
         camera={{ position: [0, 0, 0], fov: 55 }}
         gl={{ antialias: true, alpha: true }}
       >
         <GalleryScene
           images={images}
+          ativas={ativas}
+          controle={comando}
           fadeSettings={fadeSettings}
           blurSettings={blurSettings}
           {...rest}

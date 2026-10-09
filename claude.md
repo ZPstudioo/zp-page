@@ -7,7 +7,7 @@
 
 ## O QUE É
 
-Site do **ZP Studio**, estúdio de fotografia em São Paulo.
+Site do **ZP Studio**, estúdio de fotografia em Cacoal (RO).
 Serve casais, gestante, retratos e eventos.
 
 **Não é** um SaaS. Não é dashboard. Não tem KPI, gráfico, bento de métricas
