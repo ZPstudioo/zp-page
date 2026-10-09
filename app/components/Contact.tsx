@@ -4,11 +4,12 @@ import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { MapPin, Mail, Instagram } from "lucide-react";
 import Eyebrow from "./film/Eyebrow";
+import { contato, links } from "@/lib/site";
 
 const canais = [
-  { href: "https://wa.me/5569992527366", label: "WhatsApp", sub: "(69) 99252-7366" },
-  { href: "mailto:zp.studio10@gmail.com", label: "E-mail", sub: "zp.studio10@gmail.com" },
-  { href: "https://instagram.com/zp.studio_oficial", label: "Instagram", sub: "@zp.studio_oficial" },
+  { href: links.whatsapp, label: "WhatsApp", sub: contato.telefone },
+  { href: links.email, label: "E-mail", sub: contato.email },
+  { href: links.instagram, label: "Instagram", sub: `@${contato.instagram}` },
 ];
 
 export default function Contact() {

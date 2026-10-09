@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { gsap, useGSAP, SplitText, MQ_MOTION } from "@/lib/gsap";
+import { links } from "@/lib/site";
 
 /**
  * O momento bold do site.
@@ -86,7 +87,7 @@ export default function CTAFinal() {
             Agendar ensaio
           </a>
           <a
-            href="https://wa.me/5569992527366"
+            href={links.whatsapp}
             target="_blank"
             rel="noopener noreferrer"
             className="border border-film-black/30 px-10 py-4 font-hud text-[11px] uppercase tracking-hud text-film-black transition-colors duration-300 hover:bg-film-black hover:text-film-white"

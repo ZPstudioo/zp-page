@@ -30,6 +30,7 @@ export default function Leader() {
   // Decidido no cliente: sessionStorage e reduced-motion não existem no servidor.
   useEffect(() => {
     if (leaderDeveRodar()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- só existe no cliente
       setAtivo(true);
     } else {
       anunciarLeaderPronto();

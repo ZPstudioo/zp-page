@@ -39,10 +39,6 @@ export function marcarLeaderVisto() {
   }
 }
 
-export function leaderJaPassou() {
-  return pronto;
-}
-
 export function anunciarLeaderPronto() {
   if (pronto) return;
   pronto = true;

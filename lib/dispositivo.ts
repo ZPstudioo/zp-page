@@ -55,8 +55,3 @@ export function aparelhoFraco(): boolean {
   return false;
 }
 
-/** Tela grande, sem "reduzir movimento" E com hardware que aguenta. */
-export function podePagarLuxo(mq: string): boolean {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia(mq).matches && !aparelhoFraco();
-}

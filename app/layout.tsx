@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Anton, Archivo, IBM_Plex_Mono } from "next/font/google";
+import { URL_SITE, contato, links } from "@/lib/site";
 import "./globals.css";
 
 /* Anton — condensada de peso único. É a voz dos títulos. */
@@ -30,7 +31,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://zpstudio.com.br"),
+  metadataBase: new URL(URL_SITE),
   title: "ZP Studio | Fotografia em Cacoal",
   description:
     "Estúdio de fotografia em Cacoal. Casais, famílias, retratos e eventos — com a luz que cada momento pede. Desde 2024.",
@@ -58,6 +59,7 @@ export const metadata: Metadata = {
     description: "Casais, famílias, retratos e eventos — com a luz que cada momento pede.",
     images: ["/og-image.jpg"],
   },
+  alternates: { canonical: "/" },
   robots: { index: true, follow: true },
 };
 
@@ -80,16 +82,16 @@ export default function RootLayout({
                 "Estúdio de fotografia profissional especializado em retratos, casais e eventos.",
               address: {
                 "@type": "PostalAddress",
-                streetAddress: "Av. Sete de Setembro, 2485, Andar 3, Apt 10, Centro",
-                postalCode: "76963-871",
-                addressLocality: "Cacoal",
-                addressRegion: "RO",
+                streetAddress: contato.endereco.rua,
+                postalCode: contato.endereco.cep,
+                addressLocality: contato.endereco.cidade,
+                addressRegion: contato.endereco.uf,
                 addressCountry: "BR",
               },
-              telephone: "+55-69-99252-7366",
-              email: "zp.studio10@gmail.com",
-              url: "https://zpstudio.com.br",
-              sameAs: ["https://www.instagram.com/zp.studio_oficial"],
+              telephone: `+${contato.whatsapp}`,
+              email: contato.email,
+              url: URL_SITE,
+              sameAs: [links.instagram],
               openingHoursSpecification: [
                 {
                   "@type": "OpeningHoursSpecification",

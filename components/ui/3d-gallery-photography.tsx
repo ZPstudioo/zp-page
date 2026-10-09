@@ -439,6 +439,7 @@ export default function InfiniteGallery({
       const canvas = document.createElement("canvas");
       const gl =
         canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- só existe no cliente
       if (!gl) setWebglSupported(false);
     } catch {
       setWebglSupported(false);

@@ -19,18 +19,6 @@
   --film-line:  rgba(237, 237, 232, 0.12);
   --rec:        #FF3D00;
 
-  /* tokens shadcn — usados apenas na rota /mundo */
-  --background:         0 0% 2%;
-  --foreground:         50 8% 92%;
-  --muted:              0 0% 7%;
-  --muted-foreground:   0 0% 42%;
-  --card:               0 0% 4%;
-  --card-foreground:    50 8% 92%;
-  --border:             0 0% 11%;
-  --primary:            50 8% 92%;
-  --primary-foreground: 0 0% 2%;
-  --accent:             0 0% 9%;
-  --accent-foreground:  50 8% 92%;
 }
 
 /* ── Base ───────────────────────────────────────────────────── */
@@ -105,9 +93,6 @@ body {
   outline-offset: 3px;
 }
 
-/* ── Hairline ───────────────────────────────────────────────── */
-.rule { border-top: 1px solid var(--film-line); }
-
 /* ── Halation ────────────────────────────────────────────────
    O brilho quente que a luz forte cria ao atravessar o filme.
    Substitui o antigo "light leak" azul.                        */
@@ -133,26 +118,10 @@ body {
    linha entra por baixo. É o reveal que não parece template.    */
 .mask-line { overflow: hidden; display: block; }
 
-/* ── Perfuração de filme ────────────────────────────────────
-   Os furos laterais de um negativo 35mm, em CSS puro.          */
-.sprockets {
-  background-image: radial-gradient(
-    circle at center,
-    var(--film-black) 0 42%,
-    transparent 43%
-  );
-  background-size: 22px 22px;
-  background-repeat: repeat-x;
-}
-
 /* ── Faixa de rolagem nativa (galeria mobile) ────────────────
    Some com a barra de scroll sem desligar o scroll em si.       */
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
-
-/* ── Clip reveal ────────────────────────────────────────────── */
-.clip-hidden  { clip-path: inset(0 100% 0 0); }
-.clip-visible { clip-path: inset(0 0% 0 0); }
 
 /* ── Menos movimento ────────────────────────────────────────
    Não é enfeite: o grão e o scrub saem inteiros.               */

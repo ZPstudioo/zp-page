@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Instagram, Mail } from "lucide-react";
+import { contato, links } from "@/lib/site";
 import CartelaFinal from "./CartelaFinal";
 
 /**
@@ -55,9 +56,9 @@ export default function Footer() {
           <div className="pt-8">
             <p className="mb-4 font-hud text-[9px] uppercase tracking-hud text-film-grey">Contato</p>
             <div className="flex flex-col font-body text-sm text-film-400">
-              <a href="tel:+5569992527366" className="flex min-h-[44px] items-center transition-colors duration-300 hover:text-film-white">(69) 99252-7366</a>
-              <a href="mailto:zp.studio10@gmail.com" className="flex min-h-[44px] items-center break-all transition-colors duration-300 hover:text-film-white">zp.studio10@gmail.com</a>
-              <span className="mt-2 font-hud text-[10px] uppercase tracking-hud text-film-grey">Seg–Sex · 9h–18h</span>
+              <a href={links.telefone} className="flex min-h-[44px] items-center transition-colors duration-300 hover:text-film-white">{contato.telefone}</a>
+              <a href={links.email} className="flex min-h-[44px] items-center break-all transition-colors duration-300 hover:text-film-white">{contato.email}</a>
+              <span className="mt-2 font-hud text-[10px] uppercase tracking-hud text-film-grey">{contato.horario}</span>
             </div>
           </div>
 
@@ -65,10 +66,10 @@ export default function Footer() {
           <div className="pt-8">
             <p className="mb-4 font-hud text-[9px] uppercase tracking-hud text-film-grey">Sigam</p>
             <div className="-ml-3 flex items-center gap-1">
-              <a href="https://instagram.com/zp.studio_oficial" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex h-11 w-11 items-center justify-center text-film-grey transition-colors duration-300 hover:text-film-white">
+              <a href={links.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="flex h-11 w-11 items-center justify-center text-film-grey transition-colors duration-300 hover:text-film-white">
                 <Instagram size={18} />
               </a>
-              <a href="mailto:zp.studio10@gmail.com" aria-label="E-mail" className="flex h-11 w-11 items-center justify-center text-film-grey transition-colors duration-300 hover:text-film-white">
+              <a href={links.email} aria-label="E-mail" className="flex h-11 w-11 items-center justify-center text-film-grey transition-colors duration-300 hover:text-film-white">
                 <Mail size={18} />
               </a>
             </div>

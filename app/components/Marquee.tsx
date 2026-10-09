@@ -28,7 +28,7 @@ export default function Marquee() {
         const largura = trilha.scrollWidth / 2;
         const x = gsap.quickSetter(trilha, "x", "px");
         let pos = 0;
-        let base = -0.6;      // deriva ociosa, px/frame
+        const base = -0.6;      // deriva ociosa, px/frame
         let impulso = 0;      // empurrão do scroll, decai sozinho
 
         const tick = () => {

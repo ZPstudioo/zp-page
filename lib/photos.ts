@@ -282,6 +282,3 @@ export const srcGaleria = (f: Foto) => f.src.replace("/fotos/", "/fotos/galeria/
 
 /** Primeiro frame do filme — a foto do Hero. */
 export const heroFoto = fotos[0];
-
-/** Uma capa por categoria, para a lista de serviços. */
-export const capas = categorias.map((c) => porCategoria(c)[0]);

@@ -1,8 +1,20 @@
+# dependências e build
 node_modules
 .next
 out
 *.tsbuildinfo
 next-env.d.ts
-dev.log
-.DS_Store
+
+# ambiente e deploy
 .env*
+.vercel
+
+# logs e sistema
+*.log
+.DS_Store
+Thumbs.db
+
+# ferramentas locais
+CLAUDE.md
+claude.md
+.claude/
