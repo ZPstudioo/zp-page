@@ -12,7 +12,7 @@
  */
 
 /** Ex.: "zpstudio.com.br" — sem "https://" e sem barra no fim. */
-const DOMINIO = "";
+const DOMINIO = "zpstudio.com.br";
 
 function urlBase(): string {
   if (DOMINIO) return `https://${DOMINIO}`;

@@ -47,6 +47,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "pt_BR",
+    url: "/",
     title: "ZP Studio | Fotografia em Cacoal",
     description:
       "Casais, famílias, retratos e eventos — com a luz que cada momento pede.",
@@ -79,7 +80,11 @@ export default function RootLayout({
               "@type": "PhotographyBusiness",
               name: "ZP Studio",
               description:
-                "Estúdio de fotografia profissional especializado em retratos, casais e eventos.",
+                "Estúdio de fotografia em Cacoal. Casais, famílias, retratos e eventos.",
+              image: `${URL_SITE}/og-image.jpg`,
+              logo: `${URL_SITE}/logo/zp-logo.png`,
+              foundingDate: "2024",
+              areaServed: { "@type": "City", name: `${contato.endereco.cidade} - ${contato.endereco.uf}` },
               address: {
                 "@type": "PostalAddress",
                 streetAddress: contato.endereco.rua,
