@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { gsap, useGSAP, carregarFlip, flipPronto, MQ_DESKTOP } from "@/lib/gsap";
 import { aparelhoFraco } from "@/lib/dispositivo";
-import { fotos, categorias, srcGaleria, type Categoria, type Foto } from "@/lib/photos";
+import { fotos, categorias, destaques, srcGaleria, type Categoria, type Foto } from "@/lib/photos";
 import type { ComandoGaleria } from "@/components/ui/3d-gallery-photography";
 import Eyebrow from "./film/Eyebrow";
 
@@ -22,10 +22,11 @@ const InfiniteGallery = dynamic(() => import("@/components/ui/3d-gallery-photogr
   ),
 });
 
-/* A galeria 3D recebe sempre TODAS as fotos (em 1200px) — as texturas
-   carregam uma vez só — e o filtro chega como lista de índices. Trocar de
-   aba não recarrega nada. */
-const imagensGaleria = fotos.map((f) => ({ src: srcGaleria(f), alt: f.alt }));
+/* A galeria 3D recebe só os DESTAQUES (cada foto é uma textura na GPU; com
+   o acervo inteiro seriam dezenas de MB de VRAM). As texturas carregam uma
+   vez só e o filtro chega como lista de índices. Trocar de aba não recarrega
+   nada. O grid/tira nativa mostra o acervo completo. */
+const imagensGaleria = destaques.map((f) => ({ src: srcGaleria(f), alt: f.alt }));
 
 const filtros = ["Todos", ...categorias] as const;
 type Filtro = (typeof filtros)[number];
@@ -93,7 +94,7 @@ export default function Portfolio() {
   );
 
   const ativas = useMemo(
-    () => (ativo === "Todos" ? undefined : fotos.flatMap((f, i) => (f.categoria === ativo ? [i] : []))),
+    () => (ativo === "Todos" ? undefined : destaques.flatMap((f, i) => (f.categoria === ativo ? [i] : []))),
     [ativo],
   );
 

@@ -18,13 +18,15 @@
  * acessibilidade) e pronto — nenhum componente muda.
  */
 
-export type Categoria = "Casais" | "Família";
+export type Categoria = "Casais" | "Família" | "Retratos" | "Profissional";
 
 export interface Foto {
   src: string;
   /** Descrição real da cena — nunca "foto 1". */
   alt: string;
   categoria: Categoria;
+  /** Entra na galeria 3D (limite de ~24: cada uma é uma textura na GPU). As demais aparecem só no grid/tira. */
+  destaque?: boolean;
   largura: number;
   altura: number;
   /** largura / altura. Evita layout shift (CLS). */
@@ -38,6 +40,7 @@ export const fotos: Foto[] = [
     src: "/fotos/casal-testas-encostadas.webp",
     alt: "Casal de perfil com as testas encostadas e os olhos fechados, sob luz lateral",
     categoria: "Casais",
+    destaque: true,
     largura: 1920,
     altura: 2400,
     ratio: 0.8,
@@ -48,6 +51,7 @@ export const fotos: Foto[] = [
     src: "/fotos/casal-abraco-camera.webp",
     alt: "Casal abraçado de lado, os dois sorrindo para a câmera",
     categoria: "Casais",
+    destaque: true,
     largura: 1920,
     altura: 2400,
     ratio: 0.8,
@@ -68,6 +72,7 @@ export const fotos: Foto[] = [
     src: "/fotos/casal-banco-apoio.webp",
     alt: "Ele sentado no banco, ela apoiada em seus ombros, ambos olhando para a câmera",
     categoria: "Casais",
+    destaque: true,
     largura: 1920,
     altura: 2400,
     ratio: 0.8,
@@ -98,6 +103,7 @@ export const fotos: Foto[] = [
     src: "/fotos/casal-maos-dadas.webp",
     alt: "Casal descalço de mãos dadas, trocando olhares",
     categoria: "Casais",
+    destaque: true,
     largura: 1920,
     altura: 2400,
     ratio: 0.8,
@@ -138,6 +144,7 @@ export const fotos: Foto[] = [
     src: "/fotos/casal-chao-olhar.webp",
     alt: "Casal sentado no chão, de mãos dadas, trocando olhares",
     categoria: "Casais",
+    destaque: true,
     largura: 1920,
     altura: 2400,
     ratio: 0.8,
@@ -188,6 +195,7 @@ export const fotos: Foto[] = [
     src: "/fotos/casal2-poltrona.webp",
     alt: "Casal na poltrona: ela sentada no braço, ele acomodado ao lado",
     categoria: "Casais",
+    destaque: true,
     largura: 1920,
     altura: 2400,
     ratio: 0.8,
@@ -198,6 +206,7 @@ export const fotos: Foto[] = [
     src: "/fotos/familia-bebe-no-alto.webp",
     alt: "Pai levanta o bebê no alto enquanto a mãe acompanha o gesto",
     categoria: "Família",
+    destaque: true,
     largura: 1920,
     altura: 2400,
     ratio: 0.8,
@@ -208,6 +217,7 @@ export const fotos: Foto[] = [
     src: "/fotos/familia-nos-ombros.webp",
     alt: "Mãe com o bebê no colo e pai com o filho mais velho nos ombros",
     categoria: "Família",
+    destaque: true,
     largura: 1920,
     altura: 2400,
     ratio: 0.8,
@@ -228,6 +238,7 @@ export const fotos: Foto[] = [
     src: "/fotos/familia-em-pe.webp",
     alt: "Família de quatro em pé, juntos, sorrindo para a câmera",
     categoria: "Família",
+    destaque: true,
     largura: 1920,
     altura: 2400,
     ratio: 0.8,
@@ -238,6 +249,7 @@ export const fotos: Foto[] = [
     src: "/fotos/familia-reunida.webp",
     alt: "Pai ao centro, mãe sentada com o bebê no colo e o filho mais velho ao lado",
     categoria: "Família",
+    destaque: true,
     largura: 1920,
     altura: 2400,
     ratio: 0.8,
@@ -264,9 +276,255 @@ export const fotos: Foto[] = [
     blur:
       "data:image/webp;base64,UklGRtgAAABXRUJQVlA4IMwAAAAwBQCdASoQABgAPt1apkyopSOiMAgBEBuJYgCdMoRwA8Aaz5f1WzwsxoNuXBz4p12voAD+PDFzSyu5KtNFabYhPtZ+P40rKH8HgxzjyseFWaM62apeQoOabRPaVNyaYbLnb2Gail5unuzdX2TWIfH9L5uajFKopl9/uDgYgK1QWyqH27BywgtZ4MlcV3lYK8KmSkTWmMIP/lci8D4gEza9LAikyynsgkAo46oWqZmMxkXGEykiBnLx3n5xeCnL2GxSlgh1RDV7mfAgAAA=",
   },
+  {
+    src: "/fotos/retrato-karol-close.webp",
+    alt: "Mulher de cabelo longo e blusa marrom sorrindo, em close de três quartos sobre fundo cinza",
+    categoria: "Retratos",
+    destaque: true,
+    largura: 1431,
+    altura: 2000,
+    ratio: 0.7155,
+    blur:
+      "data:image/webp;base64,UklGRkQAAABXRUJQVlA4IDgAAADQAQCdASoLABAAA4BaJZwAAucqEEePAAD+9fB3gBEOvHCzqHqmNsTwjwYM70xQxdhm1edzE+IAAA==",
+  },
+  {
+    src: "/fotos/retrato-karol-banqueta.webp",
+    alt: "Mulher de blusa marrom e calça preta sentada numa banqueta de madeira, olhando para a câmera",
+    categoria: "Retratos",
+    largura: 1333,
+    altura: 2000,
+    ratio: 0.6665,
+    blur:
+      "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAADQAQCdASoLABAAA4BaJZwAAxZf+bM6AAD+9dyCAzXGNAdtWXHF2zSIqsatQkM2Ci5uSjCN6uUX8DZuXkAAAA==",
+  },
+  {
+    src: "/fotos/retrato-karol-corpo-inteiro.webp",
+    alt: "Mulher de corpo inteiro com os braços abertos, blusa marrom e calça preta, em fundo cinza",
+    categoria: "Retratos",
+    destaque: true,
+    largura: 1441,
+    altura: 2000,
+    ratio: 0.7205,
+    blur:
+      "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADwAQCdASoMABAAA4BaJZQC7AEfUrMBs+YA/vScXNeUyQijyozZHkq1oeF0iYCyjmTTMI0FXJcEQDQEcTi4KHbCxc2L0PDQWgAAAA==",
+  },
+  {
+    src: "/fotos/retrato-bruno-luz-dura.webp",
+    alt: "Jovem de camiseta preta sob luz dura, olhar sério, fundo escuro",
+    categoria: "Retratos",
+    destaque: true,
+    largura: 1600,
+    altura: 2000,
+    ratio: 0.8,
+    blur:
+      "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAAAQAgCdASoNABAAA4BaJZwAAxZhYxrHPkoAAP71lMpKJkzrjmlDic3s3wvFP0gdx+mBRLRIgvz++A8RfqzxPsE+XAIAAA==",
+  },
+  {
+    src: "/fotos/retrato-bruno-jaqueta-azul.webp",
+    alt: "Jovem de jaqueta azul de time abrindo a gola, sentado numa banqueta",
+    categoria: "Retratos",
+    destaque: true,
+    largura: 1600,
+    altura: 2000,
+    ratio: 0.8,
+    blur:
+      "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAAAQAgCdASoNABAAA4BaJYwAD45NU/psbFgAAP7dtpxLVWVcBJ5jgAGZM0lIdoKtfkEJ9zC92sOb2K6tp3wdj9n8H2zxQd3nK4qBEcMtpuBlD5FV68FgAA==",
+  },
+  {
+    src: "/fotos/retrato-bruno-chao.webp",
+    alt: "Jovem de blusa escura sentado no chão de pernas cruzadas, em estúdio claro",
+    categoria: "Retratos",
+    largura: 1600,
+    altura: 2000,
+    ratio: 0.8,
+    blur:
+      "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAACwAQCdASoNABAAA4BaJZwAAp2sYXwEAP7vkIcJOeyvdEWn6cxgckc5R/a7V1BZGn1MC4v426tBLy90shHMfUGv7ATBM7U7a9XrGtsAAAA=",
+  },
+  {
+    src: "/fotos/retrato-bruno-poltrona.webp",
+    alt: "Jovem de camiseta preta sentado na poltrona, a mão apoiada no queixo",
+    categoria: "Retratos",
+    largura: 1600,
+    altura: 2000,
+    ratio: 0.8,
+    blur:
+      "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAACQAQCdASoNABAAA4BaJZQAAkicY0AA/uo3tU9excMlrY/NndwyrsFQZrgd1q7xKEcu/iI8wwsVZm4P6V9YLfwygGh6rPSXuGlzI+1SnMKKJkgbEE6ALAAA",
+  },
+  {
+    src: "/fotos/retrato-karoline-close.webp",
+    alt: "Mulher de blusa preta com a mão no queixo, em close de lado",
+    categoria: "Retratos",
+    destaque: true,
+    largura: 1333,
+    altura: 2000,
+    ratio: 0.6665,
+    blur:
+      "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAACwAQCdASoLABAAA4BaJZwAAuUoczR4AP70oQCjgoplCD6vC8WzUGAAdfKTKyvmNmKq6xpw2KdvX/Im77XOehNNczAgAA==",
+  },
+  {
+    src: "/fotos/retrato-karoline-chao.webp",
+    alt: "Mulher de calça clara e blusa preta sentada no chão, olhando para a câmera",
+    categoria: "Retratos",
+    largura: 1333,
+    altura: 2000,
+    ratio: 0.6665,
+    blur:
+      "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAAAQAgCdASoLABAAA4BaJZwAAueJUngEO64UAP70oQb8BBSFI8io62McpDJb970mC+5GaTxGedEAitVCCHj20UFdwAA=",
+  },
+  {
+    src: "/fotos/retrato-karoline-sorriso.webp",
+    alt: "Mulher de blusa preta sorrindo de frente, as mãos à frente do corpo",
+    categoria: "Retratos",
+    destaque: true,
+    largura: 1333,
+    altura: 2000,
+    ratio: 0.6665,
+    blur:
+      "data:image/webp;base64,UklGRkIAAABXRUJQVlA4IDYAAACwAQCdASoLABAAA4BaJaQAAubtKa+wAP7p8qalKA7l9nIpd6yji1ldVEFrHHGeR+KfOvzUAAA=",
+  },
+  {
+    src: "/fotos/profissional-douglas-maos-juntas.webp",
+    alt: "Homem de jaleco branco e óculos, de frente, mãos juntas à frente do corpo, fundo cinza escuro",
+    categoria: "Profissional",
+    destaque: true,
+    largura: 1433,
+    altura: 2000,
+    ratio: 0.7165,
+    blur:
+      "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADQAQCdASoLABAAA4BaJZwAAuXn8X+JAAD+72dzl9CT89gzeZc1wEMcUdCmp2qvdpSehiIyhmDTSrXYQypJ1VtUkAA=",
+  },
+  {
+    src: "/fotos/profissional-douglas-corpo-inteiro.webp",
+    alt: "Homem de jaleco, de pé e de corpo inteiro, braços cruzados, em estúdio de fundo cinza",
+    categoria: "Profissional",
+    largura: 1419,
+    altura: 2000,
+    ratio: 0.7095,
+    blur:
+      "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAACwAQCdASoLABAAA4BaJZwAAlI7/QOAAMtEWhN5CF+zQMGpxWPdBSc7khiyk0bI4yBnft0YxZgfJqL+UYaXvsAA",
+  },
+  {
+    src: "/fotos/profissional-douglas-sorriso.webp",
+    alt: "Homem de jaleco e óculos sorrindo, de braços cruzados",
+    categoria: "Profissional",
+    destaque: true,
+    largura: 1409,
+    altura: 2000,
+    ratio: 0.7045,
+    blur:
+      "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAAAQAgCdASoLABAAA4BaJZwAAxaghshescsAAP7l/74hjQU2l+ldwl6dZQ7Jl8s3mlN+H98VB4TRg6SRK1bdBGxFX+sCepEKAAA=",
+  },
+  {
+    src: "/fotos/profissional-aline-estetoscopio.webp",
+    alt: "Médica de jaleco branco e estetoscópio rosa, braços cruzados, sorrindo para a câmera",
+    categoria: "Profissional",
+    destaque: true,
+    largura: 1333,
+    altura: 2000,
+    ratio: 0.6665,
+    blur:
+      "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAABQAgCdASoLABAAA4BaJYwC7AYtBbLaEUNhC8AA/kCmmbj46RRKFhpWGwEmQKxMsC5W6Y+0p1OmmyL4zn5ooKESJZ7jjdcAJtz7sSyJmAtLkDTsiGd7B58AAAA=",
+  },
+  {
+    src: "/fotos/profissional-aline-poltrona.webp",
+    alt: "Médica de jaleco sentada numa poltrona de madeira, olhando para a câmera",
+    categoria: "Profissional",
+    largura: 1333,
+    altura: 2000,
+    ratio: 0.6665,
+    blur:
+      "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAADQAQCdASoLABAAA4BaJZwAApuiCJa7IAD+0OvvTqly2CTkzfG2geVc8s5hYqozMVeqgwgsknzcLk3plMeaCAAA",
+  },
+  {
+    src: "/fotos/profissional-aline-vestido-preto.webp",
+    alt: "Mulher de vestido preto com a mão no queixo, olhando para a câmera",
+    categoria: "Profissional",
+    destaque: true,
+    largura: 1333,
+    altura: 2000,
+    ratio: 0.6665,
+    blur:
+      "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAADwAQCdASoLABAAA4BaJaQAAlxd28XZOAAA/NjICrBixRxClfqqOO1kgInG6Rb+tYONWxtpsvMHzfwA",
+  },
+  {
+    src: "/fotos/profissional-aline-uniforme-azul.webp",
+    alt: "Mulher de uniforme azul-claro e salto alto, em pé e de lado, braços cruzados",
+    categoria: "Profissional",
+    largura: 1333,
+    altura: 2000,
+    ratio: 0.6665,
+    blur:
+      "data:image/webp;base64,UklGRkgAAABXRUJQVlA4IDwAAACwAQCdASoLABAAA4BaJaQAAlJyzaoAAP7Q6++I5mTOWLOx5daHcneNHAF6K4hJb3zFLVf44hDjkWoUgAA=",
+  },
+  {
+    src: "/fotos/profissional-diego-lendo.webp",
+    alt: "Homem de terno azul lendo um livro à mesa de escritório, com luz verde ao fundo",
+    categoria: "Profissional",
+    destaque: true,
+    largura: 1333,
+    altura: 2000,
+    ratio: 0.6665,
+    blur:
+      "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAABQAgCdASoLABAAA4BaJZAC7H8AGBr1GvXkm0AA/veVA5vkonySnLbJYl9dUo3NliN39V6SmQ1qO1JHKSCEUB3fXHDa+KWRT14NuKwhHcRtPGiGknZiLo/CSAA=",
+  },
+  {
+    src: "/fotos/profissional-diego-terno-preto.webp",
+    alt: "Homem de terno preto e camisa vinho, de frente, ajeitando o paletó",
+    categoria: "Profissional",
+    largura: 1333,
+    altura: 2000,
+    ratio: 0.6665,
+    blur:
+      "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAwAgCdASoLABAAA4BaJZwAAucQ0xTvyc0fAAD+wGJeZZT3i3tRWY8PRu97wLTyC89ZPp+HzMOa/Co5qedoEcQDzRNCnRo/kXwAAA==",
+  },
+  {
+    src: "/fotos/profissional-diego-poltrona.webp",
+    alt: "Homem de terno azul sentado na poltrona, mãos cruzadas, em estúdio claro",
+    categoria: "Profissional",
+    destaque: true,
+    largura: 1333,
+    altura: 2000,
+    ratio: 0.6665,
+    blur:
+      "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADwAQCdASoLABAAA4BaJZwC7AELGyv8MAAA/kEm1oDMGW4qWWSx+ynoOWinD6T1Rn7yVZ0wq92EPl4HOfUoA3RuXnqfCINueSUNoAAA",
+  },
+  {
+    src: "/fotos/profissional-giuliano-sorriso.webp",
+    alt: "Homem de blazer e óculos sorrindo diante do computador, num escritório de luz baixa",
+    categoria: "Profissional",
+    destaque: true,
+    largura: 1600,
+    altura: 2000,
+    ratio: 0.8,
+    blur:
+      "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAADQAQCdASoNABAAA4BaJZQAAtoq3ShJAAD++RRkMPd6gzuJ7RPl5SJiN96/eTM/qHfWx7yi5O6pUnz4mP4nD6H6wnDovUjKqTo+rEr97TRRsOIAAAA=",
+  },
+  {
+    src: "/fotos/profissional-giuliano-lendo.webp",
+    alt: "Homem de blazer lendo um livro à mesa, em escritório escuro",
+    categoria: "Profissional",
+    largura: 1600,
+    altura: 2000,
+    ratio: 0.8,
+    blur:
+      "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAABQAgCdASoNABAAA4BaJYgCsAYuRwLRybAwngAA/vhpUa+6qc0CsiL6ZibPAGz2Wbnt4ss51A104sGe1AcLVC066h/uoYAKSG02KKIKoddOabMhBgH9anhHxDxIAA==",
+  },
+  {
+    src: "/fotos/profissional-giuliano-mesa.webp",
+    alt: "Homem de blazer sentado à mesa com a mão no queixo, estantes de livros ao fundo",
+    categoria: "Profissional",
+    largura: 2000,
+    altura: 1333,
+    ratio: 1.5004,
+    blur:
+      "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADwAQCdASoQAAsAA4BaJQBdgCFrtVEnp4AA/vlJuXupjj+2m7ktzayHBm7hdIoIOmYJVqPJafYK9b9TFvxcGd4qqT5EEKuDNsEiAAAA",
+  },
 ];
 
-export const categorias: Categoria[] = ["Casais", "Família"];
+export const categorias: Categoria[] = ["Casais", "Família", "Retratos", "Profissional"];
+
+/** Fotos que vão para a galeria WebGL. */
+export const destaques = fotos.filter((f) => f.destaque);
 
 export const porCategoria = (c: Categoria) => fotos.filter((f) => f.categoria === c);
 

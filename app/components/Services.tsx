@@ -17,7 +17,7 @@ const acha = (slug: string) => fotos.find((f) => f.src.includes(slug));
 const servicos = [
   { titulo: "Casal", desc: "Histórias de dois, sem pose forçada.", preco: "a partir de R$ 600", foto: acha("casal-testas-encostadas") },
   { titulo: "Família", desc: "Todo mundo junto, do jeito que vocês são.", preco: "a partir de R$ 800", foto: acha("familia-bebe-no-alto") },
-  { titulo: "Retrato", desc: "Sua presença traduzida em uma imagem.", preco: "a partir de R$ 400", foto: acha("retrato-bebe") },
+  { titulo: "Retrato", desc: "Sua presença traduzida em uma imagem.", preco: "a partir de R$ 400", foto: acha("retrato-karol-close") },
   { titulo: "Gestante", desc: "O tempo da espera, em luz.", preco: "a partir de R$ 700", foto: undefined },
   { titulo: "Eventos", desc: "Casamentos e celebrações, cobertura completa.", preco: "sob consulta", foto: undefined },
 ];
