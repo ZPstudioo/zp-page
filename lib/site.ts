@@ -11,8 +11,8 @@
  * no WhatsApp já funciona antes do domínio existir.
  */
 
-/** Ex.: "zpstudio.com.br" — sem "https://" e sem barra no fim. */
-const DOMINIO = "zpstudio.com.br";
+/** Ex.: "www.zpstudio.com.br" — sem "https://" e sem barra no fim. */
+const DOMINIO = "www.zpstudio.com.br";
 
 function urlBase(): string {
   if (DOMINIO) return `https://${DOMINIO}`;
