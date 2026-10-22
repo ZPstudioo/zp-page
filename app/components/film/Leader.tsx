@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import { gsap, useGSAP, pausarScroll } from "@/lib/gsap";
 import { leaderDeveRodar, marcarLeaderVisto, anunciarLeaderPronto } from "./leader-bus";
+import { contato } from "@/lib/site";
 
 /**
  * Academy leader — a contagem que abre um rolo de filme.
@@ -147,7 +148,9 @@ export default function Leader() {
 
       {/* Cantos */}
       <div data-marca className={`absolute left-5 top-5 ${canto}`}>ZP·STUDIO</div>
-      <div data-marca className={`absolute right-5 top-5 ${canto}`}>SÃO PAULO</div>
+      <div data-marca className={`absolute right-5 top-5 ${canto}`}>
+        {contato.endereco.cidade.toUpperCase()} · {contato.endereco.uf}
+      </div>
       <div data-marca className={`absolute bottom-5 left-5 ${canto}`}>35MM · ISO 400</div>
       <div data-marca className={`absolute bottom-5 right-5 ${canto}`}>ROLO 001</div>
     </div>
