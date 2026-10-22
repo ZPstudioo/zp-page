@@ -12,7 +12,6 @@ import About from "./components/About";
 import Process from "./components/Process";
 import Services from "./components/Services";
 import Portfolio from "./components/Portfolio";
-import Testimonials from "./components/Testimonials";
 import CTAFinal from "./components/CTAFinal";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
@@ -37,7 +36,6 @@ export default function Home() {
           <Process />
           <Services />
           <Portfolio />
-          <Testimonials />
           <CTAFinal />
           <Contact />
           <Footer />

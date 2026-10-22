@@ -87,7 +87,7 @@ export default function RootLayout({
               areaServed: { "@type": "City", name: `${contato.endereco.cidade} - ${contato.endereco.uf}` },
               address: {
                 "@type": "PostalAddress",
-                streetAddress: contato.endereco.rua,
+                streetAddress: `${contato.endereco.rua}, ${contato.endereco.complemento}, ${contato.endereco.bairro}`,
                 postalCode: contato.endereco.cep,
                 addressLocality: contato.endereco.cidade,
                 addressRegion: contato.endereco.uf,

@@ -39,7 +39,7 @@ export default function Contact() {
       <div className="mx-auto grid max-w-6xl gap-14 md:grid-cols-[1fr_1fr]">
         <div>
           <div data-reveal>
-            <Eyebrow cena="Cena 07">Contato</Eyebrow>
+            <Eyebrow cena="Cena 06">Contato</Eyebrow>
           </div>
           <h2
             data-reveal
@@ -52,10 +52,22 @@ export default function Contact() {
             proposta.
           </p>
 
-          <div data-reveal className="mt-8 flex items-center gap-3 font-hud text-[10px] uppercase tracking-hud text-film-grey">
-            <MapPin size={13} aria-hidden />
-            Cacoal, RO · Brasil
-          </div>
+          <a
+            data-reveal
+            href={links.mapa}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-8 flex items-start gap-3 font-hud text-[10px] uppercase leading-relaxed tracking-hud text-film-grey transition-colors duration-300 hover:text-film-white"
+          >
+            <MapPin size={13} aria-hidden className="mt-0.5 shrink-0" />
+            <address className="not-italic">
+              {contato.endereco.rua}, {contato.endereco.bairro}
+              <br />
+              {contato.endereco.complemento} · {contato.endereco.referencia}
+              <br />
+              {contato.endereco.cidade} - {contato.endereco.uf} · {contato.endereco.cep}
+            </address>
+          </a>
         </div>
 
         {/* Canais */}

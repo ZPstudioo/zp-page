@@ -30,16 +30,22 @@ export const contato = {
   instagram: "zp.studio_oficial",
   horario: "Seg–Sex · 9h–18h",
   endereco: {
-    rua: "Av. Sete de Setembro, 2485, Andar 3, Apt 10, Centro",
-    cep: "76963-871",
+    rua: "Av. Sete de Setembro, 2485",
+    complemento: "Sala 10, 2º andar",
+    bairro: "Centro",
+    referencia: "No andar de cima da Biglar",
+    cep: "76963-765",
     cidade: "Cacoal",
     uf: "RO",
   },
 };
+
+const enderecoCompleto = `${contato.endereco.rua}, ${contato.endereco.bairro}, ${contato.endereco.cidade} - ${contato.endereco.uf}, ${contato.endereco.cep}`;
 
 export const links = {
   whatsapp: `https://wa.me/${contato.whatsapp}`,
   telefone: `tel:+${contato.whatsapp}`,
   email: `mailto:${contato.email}`,
   instagram: `https://www.instagram.com/${contato.instagram}`,
+  mapa: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoCompleto)}`,
 };

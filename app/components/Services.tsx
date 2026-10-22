@@ -15,11 +15,11 @@ import Eyebrow from "./film/Eyebrow";
 const acha = (slug: string) => fotos.find((f) => f.src.includes(slug));
 
 const servicos = [
-  { titulo: "Casal", desc: "Histórias de dois, sem pose forçada.", preco: "a partir de R$ 600", foto: acha("casal-testas-encostadas") },
-  { titulo: "Família", desc: "Todo mundo junto, do jeito que vocês são.", preco: "a partir de R$ 800", foto: acha("familia-bebe-no-alto") },
-  { titulo: "Retrato", desc: "Sua presença traduzida em uma imagem.", preco: "a partir de R$ 400", foto: acha("retrato-karol-close") },
-  { titulo: "Gestante", desc: "O tempo da espera, em luz.", preco: "a partir de R$ 700", foto: undefined },
-  { titulo: "Eventos", desc: "Casamentos e celebrações, cobertura completa.", preco: "sob consulta", foto: undefined },
+  { titulo: "Casal", desc: "Histórias de dois, sem pose forçada.", foto: acha("casal-testas-encostadas") },
+  { titulo: "Família", desc: "Todo mundo junto, do jeito que vocês são.", foto: acha("familia-bebe-no-alto") },
+  { titulo: "Retrato", desc: "Sua presença traduzida em uma imagem.", foto: acha("retrato-karol-close") },
+  { titulo: "Gestante", desc: "O tempo da espera, em luz.", foto: undefined },
+  { titulo: "Eventos", desc: "Casamentos e celebrações, cobertura completa.", foto: undefined },
 ];
 
 export default function Services() {
@@ -164,11 +164,8 @@ export default function Services() {
                   {s.desc}
                 </span>
 
-                {/* Rodapé da linha: preço + seta */}
-                <span className="mt-3 flex items-center justify-between gap-3 md:mt-0 md:contents">
-                  <span className="font-hud text-[10px] uppercase tracking-hud text-film-400 md:shrink-0">
-                    {s.preco}
-                  </span>
+                {/* Rodapé da linha: seta */}
+                <span className="mt-3 flex items-center justify-end md:mt-0 md:contents">
                   <span className="font-hud text-film-grey transition-transform duration-300 group-hover:translate-x-1 group-hover:text-film-white md:shrink-0">
                     ↗
                   </span>
