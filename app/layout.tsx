@@ -72,6 +72,19 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${anton.variable} ${archivo.variable} ${plexMono.variable}`}>
       <head>
+        {/* Nome do site nos resultados do Google: sem isto ele mostra o domínio. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "ZP Studio",
+              alternateName: ["ZP Studio Fotografia", "ZPstudio"],
+              url: `${URL_SITE}/`,
+            }),
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
